@@ -1,5 +1,7 @@
-// About.jsx - Complete Tailwind CSS Version
+// About.jsx - Complete with New Color Palette
 import React, { useState, useEffect } from 'react';
+import logoImage from '../assets/logo.png';
+
 
 const About = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -32,8 +34,8 @@ const About = () => {
           <path d="M7 10L12 15L17 10" stroke="currentColor" strokeWidth="2"/>
         </svg>
       ),
-      title: 'Document Upload',
-      description: 'Support for various file formats including text, PDF, and Word documents with smart validation'
+      title: 'Document Vault',
+      description: 'Securely capture, store, and organize all metro documents for instant access and traceability.'
     },
     {
       icon: (
@@ -43,8 +45,8 @@ const About = () => {
           <path d="M4 12H20" stroke="currentColor" strokeWidth="2"/>
         </svg>
       ),
-      title: 'Text Processing',
-      description: 'Advanced text chunking and analysis for better AI comprehension and faster results'
+      title: 'Risk Analysis',
+      description: 'AI-powered summarization highlights key actions and identifies regulatory or operational risks.'
     },
     {
       icon: (
@@ -53,8 +55,8 @@ const About = () => {
           <path d="M2 12C2 6.48 6.48 2 12 2S22 6.48 22 12 17.52 22 12 22 2 17.52 2 12Z" stroke="currentColor" strokeWidth="2"/>
         </svg>
       ),
-      title: 'Secure Sessions',
-      description: 'Each user session is isolated using secure JWT tokens for maximum privacy protection'
+      title: 'Secure Profiles',
+      description: 'Personalized, role-based access ensures stakeholders see only relevant documents and insights.'
     },
     {
       icon: (
@@ -62,8 +64,8 @@ const About = () => {
           <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
         </svg>
       ),
-      title: 'Fast Processing',
-      description: 'Efficient document processing and storage using vector databases for lightning-fast responses'
+      title: 'Interactive Chat',
+      description: 'Instantly search, explore, and interact with documents through an AI chatbot and negotiation simulator.'
     }
   ];
 
@@ -113,7 +115,7 @@ const About = () => {
     }
   ];
 
-  // Team Members Data
+  // Team Members Data (keeping the same data)
   const teamMembers = [
     {
       id: 1,
@@ -159,10 +161,10 @@ const About = () => {
     },
     {
       id: 4,
-      name: 'Dheeraj Rao',
+      name: 'Varshith Reddy',
       role: 'Langchain Developer',
       specialty: 'Langchain & AI Integration',
-      bio: 'Dheeraj is a langchain developer with a knack for integrating AI into user-friendly applications. He focuses on creating seamless user experiences.',
+      bio: 'Varshith is a langchain developer with a knack for integrating AI into user-friendly applications. He focuses on creating seamless user experiences.',
       image: 'https://www.sportzcraazy.com/wp-content/uploads/2020/02/ms-dhoni.jpeg',
       skills: ['Langchain', 'JavaScript', 'Pandas', 'NumPy'],
       social: {
@@ -173,10 +175,10 @@ const About = () => {
     },
     {
       id: 5,
-      name: 'Sai Ganesh',
+      name: 'Ashvith Narla',
       role: 'Deployment Engineer',
       specialty: 'Cloud Infrastructure',
-      bio: 'Sai Ganesh is a deployment engineer who specializes in cloud infrastructure. He ensures our platform is scalable and reliable.',
+      bio: 'Ashvith is a deployment engineer who specializes in cloud infrastructure. He ensures our platform is scalable and reliable.',
       image: 'https://english.cdn.zeenews.com/sites/default/files/2022/12/14/1129224-gallerymessi1.jpg',
       skills: ['AWS', 'CI/CD', 'Docker', 'Linux'],
       social: {
@@ -184,15 +186,30 @@ const About = () => {
         github: 'https://github.com/david-pm',
         twitter: 'https://twitter.com/david_product'
       }
-    }
+    },
+    {
+  id: 6,
+  name: 'Anwesha Pradhan',
+  role: 'UI/UX Designer',
+  specialty: 'Visual Design Skills',
+  bio: 'Anwesha designs our platform\'s UI/UX with a focus on clarity and speed. She builds interfaces that turn complex documents into simple, actionable views.',
+  image: 'https://www.sportzcraazy.com/wp-content/uploads/2025/03/STOKES-3-1.jpg',
+  skills: ['Wireframing', 'Prototyping', 'Visual Design', 'NumPy'],
+  social: {
+    linkedin: 'https://linkedin.com/in/emma-watson-design',
+    github: 'https://github.com/emma-designs',
+    twitter: 'https://twitter.com/emma_ux'
+  }
+}
+
   ];
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-[#CCFFEB] via-[#EAD2AC] to-[#CCFFEB] text-gray-800 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       {/* Scroll Progress Bar */}
-      <div className="fixed top-20 left-0 right-0 h-1 bg-slate-800/50 z-50">
+      <div className="fixed top-20 left-0 right-0 h-1 bg-white/50 z-50">
         <div 
-          className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-300 relative"
+          className="h-full bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] transition-all duration-300 relative"
           style={{ width: `${scrollProgress}%` }}
         >
           <div className="absolute right-0 top-0 w-20 h-full bg-gradient-to-r from-transparent to-white/30 animate-pulse"></div>
@@ -201,30 +218,30 @@ const About = () => {
 
       {/* Background Effects */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute top-20 left-10 w-64 h-64 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-40 right-10 w-80 h-80 bg-gradient-to-r from-purple-600/10 to-pink-600/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-to-r from-cyan-600/10 to-blue-600/10 rounded-full blur-3xl animate-pulse delay-2000 transform -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute top-20 left-10 w-64 h-64 bg-gradient-to-r from-[#81D8D0]/20 to-[#20B2AA]/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-40 right-10 w-80 h-80 bg-gradient-to-r from-[#20B2AA]/20 to-[#EBA536]/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-gradient-to-r from-[#81D8D0]/20 to-[#20B2AA]/20 rounded-full blur-3xl animate-pulse delay-2000 transform -translate-x-1/2 -translate-y-1/2"></div>
       </div>
 
       {/* Hero Section */}
       <section className="relative z-10 pt-32 pb-20 px-4 text-center">
         <div className="max-w-4xl mx-auto">
           {/* Badge */}
-          <div className="inline-flex items-center gap-3 px-6 py-3 bg-slate-800/60 backdrop-blur-sm border border-blue-500/30 rounded-full mb-8 animate-bounce-slow">
-            <div className="w-5 h-5 text-blue-400">
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-white/60 backdrop-blur-sm border border-[#81D8D0]/50 rounded-full mb-8">
+            <div className="w-5 h-5 text-[#20B2AA]">
               <svg viewBox="0 0 24 24" fill="none">
                 <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
               </svg>
             </div>
-            <span className="text-blue-400 font-semibold">Revolutionizing Legal Analysis</span>
+            <span className="text-[#20B2AA] font-semibold">Revolutionizing Legal Analysis</span>
           </div>
 
-          <h1 className="text-5xl sm:text-6xl md:text-7xl font-black mb-8 leading-tight">
+          <h1 className="text-5xl sm:text-6xl md:text-7xl font-black mb-8 leading-tight text-gray-800">
             Revolutionizing document interaction through{' '}
-            <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-              cutting-edge artificial intelligence
+            <span className="bg-gradient-to-r from-[#20B2AA] via-[#81D8D0] to-[#EBA536] bg-clip-text text-transparent">
+              Cutting-edge Artificial Intelligence
             </span>{' '}
-            and natural language processing technology
+            and Natural Language Processing Technology
           </h1>
 
           <div className="flex justify-center gap-8 text-center">
@@ -234,10 +251,10 @@ const About = () => {
               { number: '50+', label: 'Languages Supported' }
             ].map((stat, index) => (
               <div key={index} className="flex flex-col">
-                <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-2">
+                <div className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent mb-2">
                   {stat.number}
                 </div>
-                <div className="text-slate-400 text-sm uppercase tracking-wider">{stat.label}</div>
+                <div className="text-gray-600 text-sm uppercase tracking-wider">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -247,35 +264,33 @@ const About = () => {
       {/* Intro Section */}
       <section className="relative z-10 py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 lg:p-12">
+          <div className="bg-white/60 backdrop-blur-sm border border-[#81D8D0]/30 rounded-3xl p-8 lg:p-12">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
-                <p className="text-xl text-slate-300 leading-relaxed">
-                  <strong className="text-white">Accord AI</strong> is an{' '}
-                  <strong className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-                    intelligent document processing platform
+                <p className="text-xl text-gray-700 leading-relaxed">
+                  <strong className="text-gray-800">KMRL-Vault</strong> is a{' '}
+                  <strong className="bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent">
+                    smart document management platform
                   </strong>{' '}
-                  that allows you to upload, analyze, and interact with your documents using advanced AI technology.
+                  built for Kochi Metro Rail Limited’s large and bilingual document system. It lets teams upload, organize, and analyze engineering, regulatory, and operational files in English, Malayalam, or both.
                 </p>
-                <p className="text-xl text-slate-300 leading-relaxed">
-                  Our platform uses cutting-edge natural language processing to understand and extract insights from your documents.
+                <p className="text-xl text-gray-700 leading-relaxed">
+                  Our platform uses advanced natural language processing to automatically summarize documents, highlight key risks, and surface the most important information for each user role.
                 </p>
-                <p className="text-xl text-slate-300 leading-relaxed">
+                <p className="text-xl text-gray-700 leading-relaxed">
                   Built with enterprise-grade security and powered by state-of-the-art machine learning models,
-                  Accord AI transforms the way you work with documents, making information retrieval{' '}
-                  <strong className="text-green-400">instant, accurate, and intuitive</strong>.
+                  KMRL-Vault transforms how teams access and act on information, making insights{' '}
+                  <strong className="text-[#20B2AA]">instant, accurate, and intuitive</strong>.
                 </p>
               </div>
 
               <div className="flex justify-center">
                 <div className="relative">
-                  <div className="w-48 h-48 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center animate-float shadow-2xl shadow-blue-500/50">
-                    <svg className="w-24 h-24 text-white" viewBox="0 0 24 24" fill="none">
-                      <path d="M12 2L4 7L12 12L20 7L12 2Z" stroke="currentColor" strokeWidth="2"/>
-                      <path d="M4 12L12 17L20 12" stroke="currentColor" strokeWidth="2"/>
-                    </svg>
-                  </div>
-                  <div className="absolute -inset-4 bg-gradient-to-r from-blue-600/30 to-purple-600/30 rounded-3xl blur-xl animate-pulse"></div>
+                 <div className="w-48 h-48 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] rounded-3xl flex items-center justify-center shadow-2xl shadow-[#20B2AA]/50">
+  <img src={logoImage} alt="KMRL-Vault Logo" className="w-30 h-30" />
+</div>
+
+                  <div className="absolute -inset-4 bg-gradient-to-r from-[#20B2AA]/30 to-[#81D8D0]/30 rounded-3xl blur-xl animate-pulse"></div>
                 </div>
               </div>
             </div>
@@ -287,14 +302,14 @@ const About = () => {
       <section className="relative z-10 py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-block px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full mb-6">
-              <span className="text-blue-400 font-semibold uppercase tracking-wide text-sm">Features</span>
+            <div className="inline-block px-4 py-2 bg-[#20B2AA]/10 border border-[#20B2AA]/30 rounded-full mb-6">
+              <span className="text-[#20B2AA] font-semibold uppercase tracking-wide text-sm">Features</span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+            <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
               Discover the advanced capabilities
             </h2>
-            <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-              that make Accord AI the perfect solution for intelligent document processing
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              that make KMRL-Vault the perfect solution for intelligent document processing
             </p>
           </div>
 
@@ -302,21 +317,21 @@ const About = () => {
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className={`group bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6 cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/20 ${
-                  activeFeature === index ? 'border-blue-500/50 bg-blue-500/10' : ''
+                className={`group bg-white/60 backdrop-blur-sm border border-[#81D8D0]/30 rounded-2xl p-6 cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-[#20B2AA]/20 ${
+                  activeFeature === index ? 'border-[#20B2AA]/50 bg-[#20B2AA]/10' : ''
                 }`}
                 onClick={() => setActiveFeature(index)}
                 onMouseEnter={() => setActiveFeature(index)}
               >
-                <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <div className="w-16 h-16 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <div className="text-white">
                     {feature.icon}
                   </div>
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">
+                <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-[#20B2AA] transition-colors">
                   {feature.title}
                 </h3>
-                <p className="text-slate-400 leading-relaxed">
+                <p className="text-gray-600 leading-relaxed">
                   {feature.description}
                 </p>
               </div>
@@ -329,13 +344,13 @@ const About = () => {
       <section className="relative z-10 py-20 px-4">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
-            <div className="inline-block px-4 py-2 bg-purple-500/10 border border-purple-500/30 rounded-full mb-6">
-              <span className="text-purple-400 font-semibold uppercase tracking-wide text-sm">Process</span>
+            <div className="inline-block px-4 py-2 bg-[#EBA536]/10 border border-[#EBA536]/30 rounded-full mb-6">
+              <span className="text-[#EBA536] font-semibold uppercase tracking-wide text-sm">Process</span>
             </div>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+            <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
               Get started in four simple steps
             </h2>
-            <p className="text-xl text-slate-400">
+            <p className="text-xl text-gray-600">
               and experience the future of document intelligence
             </p>
           </div>
@@ -346,11 +361,11 @@ const About = () => {
                 <div className="flex items-center gap-8">
                   {/* Step Number */}
                   <div className="flex-shrink-0">
-                    <div className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent mb-4">
+                    <div className="text-3xl font-bold bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent mb-4">
                       {step.number}
                     </div>
-                    <div className="w-16 h-16 bg-slate-800/60 border border-blue-500/30 rounded-xl flex items-center justify-center">
-                      <div className="text-blue-400">
+                    <div className="w-16 h-16 bg-white/60 border border-[#20B2AA]/30 rounded-xl flex items-center justify-center">
+                      <div className="text-[#20B2AA]">
                         {step.icon}
                       </div>
                     </div>
@@ -358,10 +373,10 @@ const About = () => {
 
                   {/* Content */}
                   <div className="flex-1">
-                    <h3 className="text-2xl font-bold text-white mb-3">
+                    <h3 className="text-2xl font-bold text-gray-800 mb-3">
                       {step.title}
                     </h3>
-                    <p className="text-slate-300 text-lg leading-relaxed">
+                    <p className="text-gray-700 text-lg leading-relaxed">
                       {step.description}
                     </p>
                   </div>
@@ -369,7 +384,7 @@ const About = () => {
 
                 {/* Connector Line */}
                 {index < steps.length - 1 && (
-                  <div className="absolute left-8 top-20 w-0.5 h-12 bg-gradient-to-b from-blue-500/50 to-transparent"></div>
+                  <div className="absolute left-8 top-20 w-0.5 h-12 bg-gradient-to-b from-[#20B2AA]/50 to-transparent"></div>
                 )}
               </div>
             ))}
@@ -380,15 +395,15 @@ const About = () => {
       {/* Team Section */}
       <section className="relative z-10 py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 lg:p-12">
+          <div className="bg-white/60 backdrop-blur-sm border border-[#81D8D0]/30 rounded-3xl p-8 lg:p-12">
             <div className="text-center mb-16">
-              <div className="inline-block px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full mb-6">
-                <span className="text-green-400 font-semibold uppercase tracking-wide text-sm">Team</span>
+              <div className="inline-block px-4 py-2 bg-[#20B2AA]/10 border border-[#20B2AA]/30 rounded-full mb-6">
+                <span className="text-[#20B2AA] font-semibold uppercase tracking-wide text-sm">Team</span>
               </div>
-              <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+              <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                 Meet Our Expert Team
               </h2>
-              <p className="text-xl text-slate-400">
+              <p className="text-xl text-gray-600">
                 Our diverse team of experts combines years of experience in AI, development, design, and product strategy
               </p>
             </div>
@@ -397,11 +412,11 @@ const About = () => {
               {teamMembers.map((member, index) => (
                 <div 
                   key={member.id}
-                  className="group bg-slate-900/60 border border-slate-600/50 rounded-2xl p-6 hover:border-blue-500/50 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/20"
+                  className="group bg-[#CCFFEB]/50 border border-[#81D8D0]/30 rounded-2xl p-6 hover:border-[#20B2AA]/50 transition-all duration-500 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#20B2AA]/20"
                 >
                   {/* Member Image */}
                   <div className="relative mb-6">
-                    <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden border-4 border-blue-500/50 group-hover:border-blue-400 transition-colors">
+                    <div className="w-24 h-24 mx-auto rounded-2xl overflow-hidden border-4 border-[#20B2AA]/50 group-hover:border-[#20B2AA] transition-colors">
                       <img 
                         src={member.image} 
                         alt={member.name}
@@ -412,13 +427,13 @@ const About = () => {
 
                   {/* Member Info */}
                   <div className="text-center">
-                    <h3 className="text-xl font-bold text-white mb-1 group-hover:text-blue-400 transition-colors">
+                    <h3 className="text-xl font-bold text-gray-800 mb-1 group-hover:text-[#20B2AA] transition-colors">
                       {member.name}
                     </h3>
-                    <p className="text-blue-400 font-semibold mb-1">
+                    <p className="text-[#20B2AA] font-semibold mb-1">
                       {member.role}
                     </p>
-                    <p className="text-slate-400 text-sm mb-4">
+                    <p className="text-gray-600 text-sm mb-4">
                       {member.specialty}
                     </p>
 
@@ -427,20 +442,20 @@ const About = () => {
                       {member.skills.slice(0, 3).map((skill, skillIndex) => (
                         <span 
                           key={skillIndex}
-                          className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 text-blue-300 text-xs font-medium rounded-full"
+                          className="px-3 py-1 bg-[#20B2AA]/20 border border-[#20B2AA]/30 text-[#20B2AA] text-xs font-medium rounded-full"
                         >
                           {skill}
                         </span>
                       ))}
                       {member.skills.length > 3 && (
-                        <span className="px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-semibold rounded-full">
+                        <span className="px-3 py-1 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] text-white text-xs font-semibold rounded-full">
                           +{member.skills.length - 3}
                         </span>
                       )}
                     </div>
 
                     {/* Bio */}
-                    <p className="text-slate-300 text-sm leading-relaxed">
+                    <p className="text-gray-700 text-sm leading-relaxed">
                       {member.bio}
                     </p>
                   </div>
@@ -454,11 +469,11 @@ const About = () => {
       {/* Security Section */}
       <section className="relative z-10 py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-3xl p-8 lg:p-12">
+          <div className="bg-white/60 backdrop-blur-sm border border-[#81D8D0]/30 rounded-3xl p-8 lg:p-12">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="flex justify-center lg:justify-start">
                 <div className="relative">
-                  <div className="w-48 h-48 bg-gradient-to-r from-green-600 to-blue-600 rounded-3xl flex items-center justify-center animate-pulse shadow-2xl shadow-green-500/50">
+                  <div className="w-48 h-48 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] rounded-3xl flex items-center justify-center animate-pulse shadow-2xl shadow-[#20B2AA]/50">
                     <svg className="w-24 h-24 text-white" viewBox="0 0 24 24" fill="none">
                       <path d="M12 22S8 18 8 13V6L12 4L16 6V13C16 18 12 22 12 22Z" stroke="currentColor" strokeWidth="2"/>
                     </svg>
@@ -466,7 +481,7 @@ const About = () => {
                   {[...Array(3)].map((_, i) => (
                     <div 
                       key={i}
-                      className={`absolute inset-0 border-2 border-green-500/30 rounded-3xl animate-ping`}
+                      className={`absolute inset-0 border-2 border-[#20B2AA]/30 rounded-3xl animate-ping`}
                       style={{ animationDelay: `${i * 0.5}s`, animationDuration: '2s' }}
                     ></div>
                   ))}
@@ -475,15 +490,15 @@ const About = () => {
 
               <div className="space-y-8">
                 <div>
-                  <div className="inline-block px-4 py-2 bg-green-500/10 border border-green-500/30 rounded-full mb-6">
-                    <span className="text-green-400 font-semibold uppercase tracking-wide text-sm">Security</span>
+                  <div className="inline-block px-4 py-2 bg-[#20B2AA]/10 border border-[#20B2AA]/30 rounded-full mb-6">
+                    <span className="text-[#20B2AA] font-semibold uppercase tracking-wide text-sm">Security</span>
                   </div>
-                  <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                  <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                     Enterprise-Grade Security
                   </h2>
-                  <p className="text-xl text-slate-300 leading-relaxed mb-8">
+                  <p className="text-xl text-gray-700 leading-relaxed mb-8">
                     We take your privacy seriously. Each session is completely isolated using{' '}
-                    <strong className="text-green-400">secure JWT tokens</strong>, ensuring that your documents are never mixed
+                    <strong className="text-[#20B2AA]">secure JWT tokens</strong>, ensuring that your documents are never mixed
                     with other users' content. Your session data is automatically managed and secured
                     with enterprise-grade encryption.
                   </p>
@@ -496,9 +511,9 @@ const About = () => {
                     { icon: '🔒', text: 'Secure data storage' },
                     { icon: '✅', text: 'GDPR compliant' }
                   ].map((feature, index) => (
-                    <div key={index} className="flex items-center gap-4 p-4 bg-slate-900/60 border border-slate-600/50 rounded-xl hover:border-green-500/50 transition-all duration-300 hover:translate-x-2">
+                    <div key={index} className="flex items-center gap-4 p-4 bg-[#CCFFEB]/50 border border-[#81D8D0]/30 rounded-xl hover:border-[#20B2AA]/50 transition-all duration-300 hover:translate-x-2">
                       <span className="text-2xl">{feature.icon}</span>
-                      <span className="text-white font-semibold">{feature.text}</span>
+                      <span className="text-gray-800 font-semibold">{feature.text}</span>
                     </div>
                   ))}
                 </div>
@@ -511,15 +526,15 @@ const About = () => {
       {/* CTA Section */}
       <section className="relative z-10 py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+          <h2 className="text-4xl sm:text-5xl font-bold mb-6 bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
             Transform Your Legal Workflow
           </h2>
-          <p className="text-xl text-slate-400 mb-12 max-w-2xl mx-auto">
-            Join thousands of users who have already transformed their document workflow with Accord AI's intelligent processing capabilities.
+          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+            Join thousands of users who have already transformed their document workflow with KMRL-Vault's intelligent processing capabilities.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="group bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-blue-500/50">
+            <button className="group bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] hover:from-[#20B2AA] hover:to-[#20B2AA] text-white font-bold py-4 px-8 rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#20B2AA]/50">
               <div className="flex items-center gap-3">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
                   <path d="M13 2L3 14H12L11 22L21 10H12L13 2Z" fill="currentColor"/>
@@ -528,7 +543,7 @@ const About = () => {
               </div>
             </button>
 
-            <button className="group bg-slate-800/60 hover:bg-slate-700/60 border border-slate-600/50 hover:border-blue-500/50 text-white font-semibold py-4 px-8 rounded-xl transition-all duration-300 hover:-translate-y-1">
+            <button className="group bg-white/60 hover:bg-[#81D8D0]/20 border border-[#81D8D0]/50 hover:border-[#20B2AA]/50 text-gray-800 font-semibold py-4 px-8 rounded-xl transition-all duration-300 hover:-translate-y-1">
               <div className="flex items-center gap-3">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
                   <path d="M15 12C15 13.6569 13.6569 15 12 15C10.3431 15 9 13.6569 9 12C9 10.3431 10.3431 9 12 9C13.6569 9 15 10.3431 15 12Z" stroke="currentColor" strokeWidth="2"/>
