@@ -1,9 +1,9 @@
 // Home.jsx - Complete Tailwind CSS Version with New Color Palette
 import logoImage from '../assets/logo.png';
+import mapImage from '../assets/map.png';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createSession, getSessionToken, getSessionId } from '../services/api';
-
 
 const Home = () => {
   // All your existing state management
@@ -18,10 +18,8 @@ const Home = () => {
   const [success, setSuccess] = useState(false);
   const [processingResult, setProcessingResult] = useState(null);
 
-
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
-
 
   // Configuration
   const getApiBaseUrl = () => {
@@ -34,17 +32,14 @@ const Home = () => {
     return 'https://accordai.onrender.com/api/v1';
   };
 
-
   const API_BASE_URL = getApiBaseUrl();
   const SUPPORTED_FORMATS = ['.pdf', '.txt', '.doc', '.docx'];
   const MAX_FILE_SIZE = 50 * 1024 * 1024;
-
 
   // All your existing functions remain exactly the same...
   useEffect(() => {
     initializeSession();
   }, []);
-
 
   const initializeSession = useCallback(async () => {
     try {
@@ -63,7 +58,6 @@ const Home = () => {
       setError('Failed to initialize session. Please refresh the page.');
     }
   }, []);
-
 
   const validateFile = useCallback((file) => {
     const errors = [];
@@ -85,19 +79,16 @@ const Home = () => {
     return errors;
   }, []);
 
-
   const processDocument = useCallback(async () => {
     if (!selectedFile || !sessionToken) {
       setError('Please select a file and ensure session is active');
       return;
     }
 
-
     try {
       setIsProcessing(true);
       setError('');
       setUploadProgress(0);
-
 
       const isPDF = selectedFile.name.toLowerCase().endsWith('.pdf');
 
@@ -106,11 +97,9 @@ const Home = () => {
         const formData = new FormData();
         formData.append('file', selectedFile);
 
-
         const progressInterval = setInterval(() => {
           setUploadProgress(prev => Math.min(prev + 10, 90));
         }, 200);
-
 
         const response = await fetch(`${API_BASE_URL}/documents/upload-pdf`, {
           method: 'POST',
@@ -118,15 +107,12 @@ const Home = () => {
           body: formData
         });
 
-
         clearInterval(progressInterval);
         setUploadProgress(100);
-
 
         if (!response.ok) {
           throw new Error(`PDF upload failed: ${await response.text()}`);
         }
-
 
         const result = await response.json();
         setProcessingResult({
@@ -138,7 +124,6 @@ const Home = () => {
           processingTime: Date.now(),
           processingMode: 'enhanced_pdf_processing'
         });
-
 
         setSuccess(true);
         setProcessingStage(`✅ PDF processed successfully! Quality: ${result.extraction_info.quality_score.toFixed(1)}/10`);
@@ -155,7 +140,6 @@ const Home = () => {
           document_type: 'text'
         };
 
-
         const response = await fetch(`${API_BASE_URL}/documents/store_chunks`, {
           method: 'POST',
           headers: {
@@ -165,11 +149,9 @@ const Home = () => {
           body: JSON.stringify(textData)
         });
 
-
         if (!response.ok) {
           throw new Error(`Text processing failed: ${await response.text()}`);
         }
-
 
         const result = await response.json();
         setProcessingResult({
@@ -182,11 +164,9 @@ const Home = () => {
           processingMode: 'text_processing'
         });
 
-
         setSuccess(true);
         setProcessingStage(`✅ Text document processed successfully! ${result.chunks_stored} chunks created`);
       }
-
 
     } catch (error) {
       setError(`Processing failed: ${error.message}`);
@@ -194,7 +174,6 @@ const Home = () => {
       setIsProcessing(false);
     }
   }, [selectedFile, sessionToken, API_BASE_URL]);
-
 
   const readFileAsText = useCallback((file) => {
     return new Promise((resolve, reject) => {
@@ -205,13 +184,11 @@ const Home = () => {
     });
   }, []);
 
-
   const handleDragEnter = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
   }, []);
-
 
   const handleDragLeave = useCallback((e) => {
     e.preventDefault();
@@ -221,12 +198,10 @@ const Home = () => {
     }
   }, []);
 
-
   const handleDragOver = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
   }, []);
-
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
@@ -238,7 +213,6 @@ const Home = () => {
       handleFileSelect(files[0]);
     }
   }, []);
-
 
   const handleFileSelect = useCallback((file) => {
     const validationErrors = validateFile(file);
@@ -252,14 +226,12 @@ const Home = () => {
     setProcessingResult(null);
   }, [validateFile]);
 
-
   const handleFileInput = useCallback((event) => {
     const file = event.target.files?.[0];
     if (file) {
       handleFileSelect(file);
     }
   }, [handleFileSelect]);
-
 
   const navigateToAnalysis = useCallback(() => {
     if (processingResult) {
@@ -275,7 +247,6 @@ const Home = () => {
     }
   }, [processingResult, selectedFile, navigate]);
 
-
   const formatFileSize = useCallback((bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -283,7 +254,6 @@ const Home = () => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }, []);
-
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-[#CCFFEB] via-[#EAD2AC] to-[#CCFFEB] text-gray-800 relative overflow-x-hidden">
@@ -294,57 +264,73 @@ const Home = () => {
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-gradient-to-r from-[#81D8D0]/30 to-[#20B2AA]/30 rounded-full blur-3xl animate-pulse delay-2000 transform -translate-x-1/2 -translate-y-1/2"></div>
       </div>
 
-
       {/* Main Content */}
       <main className="relative z-10">
-        {/* Hero Section */}
+        {/* Hero Section with Map */}
 <section className="pt-32 pb-16 px-4">
-  <div className="max-w-6xl mx-auto">
-    {/* Logo */}
-    <div className="mb-12">
-      <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] rounded-2xl shadow-2xl shadow-[#20B2AA]/50 animate-float">
-        <img src={logoImage} alt="KMRL-Vault Logo" className="w-16 h-16" />
-      </div>
-    </div>
-
-    {/* Title */}
-    <div className="text-left mb-8">
-      <h1 className="mb-4">
-        <span className="block text-6xl sm:text-7xl md:text-8xl font-black mb-4 bg-gradient-to-r from-[#1a9d9a] via-[#20B2AA] to-[#186b6b] bg-clip-text text-transparent leading-tight">
-          KMRL-Vault
-        </span>
-        <span className="block text-xl sm:text-2xl md:text-3xl font-semibold text-gray-600 tracking-wide">
-          Smart Documents. Safer Metro
-        </span>
-      </h1>
-
-      {/* Description */}
-      <div className="text-left mb-12">
-        <p className="text-lg sm:text-xl text-gray-700 max-w-4xl leading-relaxed">
-          Transform your legal document analysis with cutting-edge AI technology. Upload contracts, agreements, and legal documents for comprehensive{' '}
-          <span className="text-[#20B2AA] font-semibold">Risk Assessment</span>,{' '}
-          <span className="text-[#20B2AA] font-semibold">Intelligent Summarization</span>, and{' '}
-          <span className="text-[#20B2AA] font-semibold">Negotiation Assistance</span>.
-        </p>
-      </div>
-
-      {/* Tech Badges */}
-      <div className="flex flex-wrap gap-4 mb-8">
-        {[
-          { icon: '🤖', text: 'Llama 3.3 70B' },
-          { icon: '📄', text: 'Enhanced PDF' },
-          { icon: '🛡️', text: 'Secure Analysis' }
-        ].map((badge, index) => (
-          <div key={index} className="flex items-center gap-3 px-6 py-3 bg-white/60 backdrop-blur-sm border border-[#81D8D0]/50 rounded-full hover:bg-[#81D8D0]/20 hover:border-[#20B2AA]/70 transition-all duration-300 hover:-translate-y-1">
-            <span className="text-2xl">{badge.icon}</span>
-            <span className="font-semibold text-gray-700">{badge.text}</span>
+  <div className="max-w-7xl mx-auto">
+    <div className="grid lg:grid-cols-2 gap-12 items-start">
+      {/* Left Side: Content */}
+      <div className="text-left space-y-8">
+        {/* Logo */}
+        <div>
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] rounded-2xl shadow-2xl shadow-[#20B2AA]/50 animate-float">
+            <img src={logoImage} alt="KMRL-Vault Logo" className="w-16 h-16" />
           </div>
-        ))}
+        </div>
+
+        {/* Title */}
+        <div className="space-y-4">
+          <h1>
+            <span className="block text-5xl sm:text-6xl lg:text-7xl font-black mb-4 bg-gradient-to-r from-[#1a9d9a] via-[#20B2AA] to-[#186b6b] bg-clip-text text-transparent leading-tight">
+              KMRL-Vault
+            </span>
+            <span className="block text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-600 tracking-wide">
+              Smart Documents. Safer Metro
+            </span>
+          </h1>
+
+          {/* Description */}
+          <p className="text-lg sm:text-xl text-gray-700 max-w-3xl leading-relaxed">
+            Revolutionize Kochi Metro's document management with advanced AI. Upload engineering, regulatory, and operational files to get fast{' '}
+            <span className="text-[#20B2AA] font-semibold">Risk Assessment</span>,{' '}
+            <span className="text-[#20B2AA] font-semibold">Intelligent Summarization</span>, and{' '}
+            <span className="text-[#20B2AA] font-semibold">Negotiation Assistance</span>.
+          </p>
+
+          {/* Tech Badges */}
+          <div className="flex flex-wrap gap-4">
+            {[
+              { icon: '🤖', text: 'Llama 3.3 70B' },
+              { icon: '📄', text: 'Enhanced PDF' },
+              { icon: '🛡️', text: 'Secure Analysis' }
+            ].map((badge, index) => (
+              <div key={index} className="flex items-center gap-3 px-6 py-3 bg-white/60 backdrop-blur-sm border border-[#81D8D0]/50 rounded-full hover:bg-[#81D8D0]/20 hover:border-[#20B2AA]/70 transition-all duration-300 hover:-translate-y-1">
+                <span className="text-2xl">{badge.icon}</span>
+                <span className="font-semibold text-gray-700">{badge.text}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side: Metro Map - HIDDEN ON MOBILE/TABLET, VISIBLE ON DESKTOP */}
+<div className="hidden lg:block relative -mt-9 -ml-8">
+        <img 
+          src={mapImage} 
+          alt="Kochi Metro Map" 
+className="w-[900px] h-[700px] object-contain hover:scale-105 transition-transform duration-500"
+          style={{ maxWidth: 'none' }}
+        />
+        
+        {/* Animated Dots for Stations */}
+        <div className="absolute top-1/4 left-1/3 w-5 h-5 bg-[#20B2AA] rounded-full animate-ping"></div>
+        <div className="absolute top-1/2 right-1/3 w-4 h-4 bg-[#EBA536] rounded-full animate-ping delay-500"></div>
+        <div className="absolute bottom-1/3 left-1/2 w-5 h-5 bg-[#81D8D0] rounded-full animate-ping delay-1000"></div>
       </div>
     </div>
   </div>
 </section>
-
 
         {/* Upload Section */}
         <section className="py-16 px-4 bg-white/30">
@@ -354,7 +340,7 @@ const Home = () => {
                 Upload Your Document
               </h2>
               <p className="text-xl text-gray-600">
-                Drag and drop your legal document or click to browse files
+                Drag and drop technical / operational / regulatory files, or click to browse
               </p>
             </div>
 
@@ -383,7 +369,6 @@ const Home = () => {
                 className="hidden"
                 disabled={isProcessing}
               />
-
 
               {!selectedFile ? (
                 <div className="flex flex-col items-center gap-6">
@@ -447,7 +432,6 @@ const Home = () => {
               )}
             </div>
 
-
             {/* Error Display */}
             {error && (
               <div className="flex items-center gap-4 p-4 mb-6 bg-red-500/10 border border-red-500/30 rounded-lg text-red-600">
@@ -455,7 +439,6 @@ const Home = () => {
                 <span className="font-medium">{error}</span>
               </div>
             )}
-
 
             {/* Process Button */}
             {selectedFile && !isProcessing && !success && (
@@ -473,7 +456,6 @@ const Home = () => {
                 </div>
               </button>
             )}
-
 
             {/* Processing Status */}
             {isProcessing && (
@@ -499,7 +481,6 @@ const Home = () => {
               </div>
             )}
 
-
             {/* Success Status */}
             {success && processingResult && (
               <div className="bg-[#20B2AA]/10 backdrop-blur-sm border border-[#20B2AA]/30 p-6 rounded-2xl">
@@ -512,10 +493,6 @@ const Home = () => {
                     <p className="text-gray-700">Your document has been analyzed with {processingResult.chunksStored} intelligent chunks.</p>
                   </div>
                 </div>
-
-
-
-
 
                 <button 
                   className="w-full max-w-md mx-auto block bg-gradient-to-r from-[#20B2AA] to-[#EBA536] hover:from-[#20B2AA] hover:to-[#EBA536] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#20B2AA]/50"
@@ -531,7 +508,6 @@ const Home = () => {
           </div>
         </section>
 
-
         {/* Features Section */}
         <section className="py-20 px-4">
           <div className="max-w-6xl mx-auto">
@@ -540,22 +516,21 @@ const Home = () => {
                 Powerful AI-Driven Analysis
               </h2>
               <p className="text-xl text-gray-600">
-                Comprehensive legal document intelligence at your fingertips
+                All critical metro documents analyzed at your fingertips
               </p>
             </div>
-
 
             <div className="grid md:grid-cols-3 gap-8">
               {[
                 {
                   icon: '🔍',
                   title: 'Risk Analysis',
-                  description: 'Identify potential legal risks, liability issues, and compliance concerns in your contracts with AI precision.'
+                  description: 'Identify potential operational, safety, and compliance risks in your documents with AI precision.'
                 },
                 {
                   icon: '📄',
                   title: 'Smart Summarization',
-                  description: 'Get comprehensive summaries with key terms, obligations, and critical clauses highlighted automatically.'
+                  description: 'Get comprehensive summaries with key information, actions, and critical points highlighted automatically.'
                 },
                 {
                   icon: '🤝',
@@ -575,7 +550,6 @@ const Home = () => {
         </section>
       </main>
 
-
       {/* Footer */}
       <footer className="bg-white/60 border-t border-[#81D8D0]/30 py-8">
         <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -593,6 +567,5 @@ const Home = () => {
     </div>
   );
 };
-
 
 export default Home;
