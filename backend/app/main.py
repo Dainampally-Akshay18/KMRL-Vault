@@ -4,22 +4,23 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from app.api.analysis import router as analysis_router
 from app.api.chatbot import chatbot_router
-
 from app.api.documents import router as doc_router
 from app.api.auth import authRoutes
 import uvicorn
 import time
 import logging
-from app.api.documents import doc_router  
+from app.api.documents import doc_router
 from app.config import settings
 from app.database.connection import init_db
 from app.api.translator import router as translator_router
 from app.api.languages import router as lang_router
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+
 logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
@@ -32,13 +33,13 @@ app = FastAPI(
     redoc_url="/redoc" if settings.DEBUG else None,
 )
 
+# Include routers
 app.include_router(authRoutes, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
 app.include_router(analysis_router, prefix=f"{settings.API_V1_STR}/analysis", tags=["analysis"])
 app.include_router(doc_router, prefix=f"{settings.API_V1_STR}/documents", tags=["documents"])
 app.include_router(chatbot_router, prefix=f"{settings.API_V1_STR}/chatbot", tags=["chatbot"])
 app.include_router(lang_router, prefix=f"{settings.API_V1_STR}/translate", tags=["languages"])
 app.include_router(translator_router, prefix=f"{settings.API_V1_STR}/translate", tags=["translate"])
-
 
 # Middleware
 app.add_middleware(
@@ -83,7 +84,6 @@ async def health_check():
         "timestamp": time.time()
     }
 
-
 # Startup event
 @app.on_event("startup")
 async def startup_event():
@@ -104,3 +104,6 @@ async def root():
         "docs": "/docs" if settings.DEBUG else "Documentation not available in production"
     }
 
+# Main execution
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

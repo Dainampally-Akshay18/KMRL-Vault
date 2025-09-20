@@ -147,12 +147,12 @@ const RagAnalysis = () => {
                 label: 'Document Summary',
                 description: 'AI-powered summarization'
               },
-              { 
-                to: '/analysis/negotiation-assistant', 
-                icon: '🤝', 
-                label: 'Negotiation Assistant',
-                description: 'Strategic guidance'
-              },
+              // { 
+              //   to: '/analysis/negotiation-assistant', 
+              //   icon: '🤝', 
+              //   label: 'Negotiation Assistant',
+              //   description: 'Strategic guidance'
+              // },
               { 
                 to: '/analysis/chatbot', // ✅ FIXED: Changed route to chatbot
                 icon: '🤖', // ✅ FIXED: Changed icon to robot
