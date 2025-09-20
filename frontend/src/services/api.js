@@ -1,4 +1,4 @@
-// api.js - Fixed API Paths and Error Handling
+// api.js - Enhanced with Chatbot API Functions
 import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://accordai.onrender.com/api/v1';
@@ -148,6 +148,195 @@ export const runDocumentSummary = async (documentId, jurisdiction = 'US') => {
   }
 };
 
+// =====================================
+// 🤖 CHATBOT API FUNCTIONS - NEW
+// =====================================
+
+// Generate JWT token for document-specific chatbot access
+export const generateDocumentToken = async (documentId, permissions = ['read', 'chat']) => {
+  try {
+    console.log(`🔑 Generating document token for: ${documentId}`);
+    const response = await api.post('/auth/document-token', {
+      document_id: documentId,
+      permissions
+    });
+    console.log('✅ Document token generated successfully');
+    return { 
+      success: true, 
+      token: response.data.token,
+      expires_at: response.data.expires_at 
+    };
+  } catch (error) {
+    console.error('❌ Document token generation error:', error);
+    return { 
+      success: false, 
+      error: error.response?.data?.detail || 'Failed to generate document token' 
+    };
+  }
+};
+
+// Main chatbot conversation function
+export const chatWithDocument = async (messageData, documentToken) => {
+  try {
+    console.log(`💬 Sending message to chatbot for document: ${messageData.document_id}`);
+    console.log(`📝 Message: "${messageData.message.substring(0, 50)}..."`);
+    
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${documentToken}`,
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    const response = await api.post('/chatbot/chat', messageData, config);
+    console.log('✅ Chatbot response received');
+    
+    return { 
+      success: true, 
+      data: {
+        response: response.data.response,
+        sources: response.data.sources || [],
+        conversation_id: response.data.conversation_id,
+        timestamp: response.data.timestamp,
+        context_used: response.data.context_used,
+        model_used: response.data.model_used,
+        confidence_score: response.data.confidence_score
+      }
+    };
+  } catch (error) {
+    console.error('❌ Chatbot conversation error:', error);
+    return { 
+      success: false, 
+      error: error.response?.data?.detail || error.message || 'Chat request failed' 
+    };
+  }
+};
+
+// Get intelligent chat suggestions for a document
+export const getChatSuggestions = async (documentId, documentToken) => {
+  try {
+    console.log(`💡 Getting chat suggestions for document: ${documentId}`);
+    
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${documentToken}`,
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    const response = await api.get(`/chatbot/chat/suggestions/${documentId}`, config);
+    console.log('✅ Chat suggestions received');
+    
+    return { 
+      success: true, 
+      suggestions: response.data.suggested_questions || [],
+      category: response.data.category
+    };
+  } catch (error) {
+    console.error('❌ Chat suggestions error:', error);
+    return { 
+      success: false, 
+      error: error.response?.data?.detail || 'Failed to get chat suggestions',
+      suggestions: [
+        "What are the key terms in this document?",
+        "What are the main obligations?",
+        "Are there any risks I should know about?",
+        "What are the payment terms?",
+        "What are the termination conditions?"
+      ]
+    };
+  }
+};
+
+// Explain specific legal clause
+export const explainLegalClause = async (clauseText, documentId, documentToken) => {
+  try {
+    console.log(`⚖️ Explaining legal clause for document: ${documentId}`);
+    console.log(`📋 Clause: "${clauseText.substring(0, 100)}..."`);
+    
+    const config = {
+      headers: {
+        'Authorization': `Bearer ${documentToken}`,
+        'Content-Type': 'application/json'
+      }
+    };
+    
+    const response = await api.post('/chatbot/chat/explain-clause', {
+      clause_text: clauseText,
+      document_id: documentId
+    }, config);
+    
+    console.log('✅ Legal clause explanation received');
+    
+    return { 
+      success: true, 
+      explanation: response.data.clause_explanation,
+      analysis_type: response.data.analysis_type,
+      timestamp: response.data.timestamp
+    };
+  } catch (error) {
+    console.error('❌ Legal clause explanation error:', error);
+    return { 
+      success: false, 
+      error: error.response?.data?.detail || 'Failed to explain legal clause' 
+    };
+  }
+};
+
+// Get chatbot health status
+export const getChatbotHealth = async () => {
+  try {
+    console.log('🏥 Checking chatbot health...');
+    const response = await api.get('/chatbot/chat/health');
+    console.log('✅ Chatbot health check completed');
+    
+    return { 
+      success: true, 
+      health: response.data,
+      status: response.data.status,
+      features: response.data.features,
+      capabilities: response.data.capabilities
+    };
+  } catch (error) {
+    console.error('❌ Chatbot health check error:', error);
+    return { 
+      success: false, 
+      error: error.response?.data?.detail || 'Chatbot health check failed',
+      status: 'unknown'
+    };
+  }
+};
+
+// Enhanced general API call function for chatbot and other services
+export const apiCall = async (endpoint, method = 'GET', data = null, customHeaders = {}) => {
+  try {
+    const config = {
+      method: method.toUpperCase(),
+      url: endpoint,
+      headers: {
+        ...customHeaders
+      }
+    };
+    
+    if (data && ['POST', 'PUT', 'PATCH'].includes(method.toUpperCase())) {
+      config.data = data;
+    }
+    
+    console.log(`🔗 Generic API Call: ${method.toUpperCase()} ${endpoint}`);
+    const response = await api(config);
+    console.log(`✅ Generic API Response: ${response.status}`);
+    
+    return response.data;
+  } catch (error) {
+    console.error(`❌ Generic API Error: ${method.toUpperCase()} ${endpoint}`, error);
+    throw new Error(error.response?.data?.detail || error.message || 'API call failed');
+  }
+};
+
+// =====================================
+// EXISTING FUNCTIONS (PRESERVED)
+// =====================================
+
 // Legacy endpoint (for backward compatibility)
 export const runRagAnalysis = async (analysisData) => {
   try {
@@ -183,6 +372,53 @@ export const getSessionInfo = async () => {
       success: false,
       error: error.response?.data?.detail || 'Failed to get session info'
     };
+  }
+};
+
+// =====================================
+// CHATBOT WRAPPER FUNCTIONS - CONVENIENCE
+// =====================================
+
+// High-level chatbot integration wrapper
+export const chatbot = {
+  // Generate token and start conversation
+  initialize: async (documentId) => {
+    const tokenResult = await generateDocumentToken(documentId);
+    if (tokenResult.success) {
+      const suggestionsResult = await getChatSuggestions(documentId, tokenResult.token);
+      return {
+        success: true,
+        token: tokenResult.token,
+        suggestions: suggestionsResult.suggestions || []
+      };
+    }
+    return tokenResult;
+  },
+  
+  // Send a message
+  chat: async (documentId, message, conversationHistory = [], token) => {
+    return await chatWithDocument({
+      message,
+      document_id: documentId,
+      conversation_history: conversationHistory,
+      max_context_chunks: 8,
+      include_document_context: true
+    }, token);
+  },
+  
+  // Explain clause
+  explainClause: async (documentId, clauseText, token) => {
+    return await explainLegalClause(clauseText, documentId, token);
+  },
+  
+  // Get suggestions
+  getSuggestions: async (documentId, token) => {
+    return await getChatSuggestions(documentId, token);
+  },
+  
+  // Health check
+  health: async () => {
+    return await getChatbotHealth();
   }
 };
 

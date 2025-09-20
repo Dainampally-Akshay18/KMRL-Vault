@@ -4,6 +4,7 @@ import { getSessionId } from '../services/api';
 import RiskAnalysis from './RiskAnalysis';
 import NegotiationAssistant from './NegotiationAssistant';
 import DocumentSummarization from './DocumentSummarization';
+import ChatBot from './ChatBot'; // ✅ ADD THIS IMPORT
 
 const RagAnalysis = () => {
   const navigate = useNavigate();
@@ -151,6 +152,12 @@ const RagAnalysis = () => {
                 icon: '🤝', 
                 label: 'Negotiation Assistant',
                 description: 'Strategic guidance'
+              },
+              { 
+                to: '/analysis/chatbot', // ✅ FIXED: Changed route to chatbot
+                icon: '🤖', // ✅ FIXED: Changed icon to robot
+                label: 'Chat Bot',
+                description: 'Interactive Q&A assistant' // ✅ FIXED: Updated description
               }
             ].map((tab) => (
               <NavLink
@@ -191,6 +198,11 @@ const RagAnalysis = () => {
             <Route 
               path="/negotiation-assistant" 
               element={<NegotiationAssistant documentInfo={documentInfo} />} 
+            />
+            {/* ✅ ADD THIS NEW ROUTE FOR CHATBOT */}
+            <Route 
+              path="/chatbot" 
+              element={<ChatBot documentInfo={documentInfo} />} 
             />
           </Routes>
         </div>
