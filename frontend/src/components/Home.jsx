@@ -332,181 +332,111 @@ className="w-[900px] h-[700px] object-contain hover:scale-105 transition-transfo
   </div>
 </section>
 
-        {/* Upload Section */}
         <section className="py-16 px-4 bg-white/30">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent">
-                Upload Your Document
-              </h2>
-              <p className="text-xl text-gray-600">
-                Drag and drop technical / operational / regulatory files, or click to browse
-              </p>
+  <div className="max-w-4xl mx-auto">
+    <div className="text-center mb-12">
+      <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent">
+        Get Started with Smart Documents
+      </h2>
+      <p className="text-xl text-gray-600">
+        Sign in to upload and analyze your technical, operational, and regulatory documents
+      </p>
+    </div>
+
+    {/* Authentication Buttons */}
+    <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12">
+      {/* Login Button */}
+      <div className="w-full sm:w-auto">
+        <button 
+          onClick={() => window.location.href = '/login'}
+          className="w-full sm:w-auto px-12 py-6 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] text-white text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 border-2 border-transparent hover:border-white/20"
+        >
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-6 h-6">
+              <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+                <path d="M15 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H15" stroke="currentColor" strokeWidth="2"/>
+                <polyline points="10,17 15,12 10,7" stroke="currentColor" strokeWidth="2"/>
+                <line x1="15" y1="12" x2="3" y2="12" stroke="currentColor" strokeWidth="2"/>
+              </svg>
             </div>
-
-            {/* Upload Zone */}
-            <div 
-              className={`relative w-full min-h-96 bg-white/40 backdrop-blur-sm border-2 border-dashed rounded-3xl p-8 text-center cursor-pointer transition-all duration-300 mb-8 ${
-                isDragging 
-                  ? 'border-[#EBA536] bg-[#EBA536]/10 scale-105' 
-                  : selectedFile 
-                    ? 'border-[#20B2AA] bg-[#20B2AA]/5' 
-                    : isProcessing 
-                      ? 'border-[#EBA536] bg-[#EBA536]/5 cursor-not-allowed' 
-                      : 'border-[#81D8D0]/70 hover:border-[#20B2AA] hover:bg-[#81D8D0]/10 hover:-translate-y-2'
-              }`}
-              onDragEnter={handleDragEnter}
-              onDragLeave={handleDragLeave}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onClick={() => !isProcessing && fileInputRef.current?.click()}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept={SUPPORTED_FORMATS.join(',')}
-                onChange={handleFileInput}
-                className="hidden"
-                disabled={isProcessing}
-              />
-
-              {!selectedFile ? (
-                <div className="flex flex-col items-center gap-6">
-                  <div className="w-20 h-20 text-[#81D8D0] animate-bounce">
-                    <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
-                      <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" strokeWidth="2"/>
-                      <polyline points="7,10 12,15 17,10" stroke="currentColor" strokeWidth="2"/>
-                      <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="2"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3 className="text-3xl font-bold text-gray-800 mb-2">Drop your document here</h3>
-                    <p className="text-xl text-gray-600">
-                      or <span className="text-[#20B2AA] font-semibold underline">click to select a file</span>
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
-                    {['PDF', 'DOC', 'DOCX', 'TXT'].map((format) => (
-                      <div key={format} className="flex flex-col items-center gap-2 p-4 bg-white/50 rounded-lg border border-[#81D8D0]/30">
-                        <span className="text-2xl">📄</span>
-                        <span className="text-sm font-semibold text-gray-600">{format}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <p className="text-gray-500 text-sm mt-4">Maximum file size: 50MB</p>
-                </div>
-              ) : (
-                <div className="flex items-center gap-6 p-6 bg-white/50 rounded-2xl text-left relative">
-                  <div className="flex-shrink-0">
-                    <div className={`w-20 h-24 rounded-xl flex items-center justify-center text-white font-bold text-sm ${
-                      selectedFile.name.toLowerCase().endsWith('.pdf') 
-                        ? 'bg-gradient-to-r from-[#EBA536] to-[#EBA536]' 
-                        : 'bg-gradient-to-r from-[#20B2AA] to-[#81D8D0]'
-                    }`}>
-                      {selectedFile.name.toLowerCase().endsWith('.pdf') ? 'PDF' : 'DOC'}
-                    </div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2 truncate">{selectedFile.name}</h3>
-                    <p className="text-gray-600 mb-3">{formatFileSize(selectedFile.size)}</p>
-                    {selectedFile.name.toLowerCase().endsWith('.pdf') && (
-                      <span className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] text-white text-sm font-semibold rounded-full">
-                        <span>✨</span>
-                        Enhanced PDF Processing
-                      </span>
-                    )}
-                  </div>
-                  <button 
-                    className="absolute top-4 right-4 w-8 h-8 bg-red-500/20 border-2 border-red-500/50 rounded-full flex items-center justify-center text-red-500 hover:bg-red-500/30 transition-colors"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedFile(null);
-                      setError('');
-                      setSuccess(false);
-                      setProcessingResult(null);
-                    }}
-                  >
-                    ×
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Error Display */}
-            {error && (
-              <div className="flex items-center gap-4 p-4 mb-6 bg-red-500/10 border border-red-500/30 rounded-lg text-red-600">
-                <span className="text-2xl">⚠️</span>
-                <span className="font-medium">{error}</span>
-              </div>
-            )}
-
-            {/* Process Button */}
-            {selectedFile && !isProcessing && !success && (
-              <button 
-                className="w-full max-w-md mx-auto block bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] hover:from-[#20B2AA] hover:to-[#20B2AA] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#20B2AA]/50"
-                onClick={processDocument}
-              >
-                <div className="flex items-center justify-center gap-3">
-                  <span className="text-2xl">⚡</span>
-                  <span className="text-lg">
-                    {selectedFile.name.toLowerCase().endsWith('.pdf') 
-                      ? 'Analyze PDF with AI' 
-                      : 'Process Document'}
-                  </span>
-                </div>
-              </button>
-            )}
-
-            {/* Processing Status */}
-            {isProcessing && (
-              <div className="bg-white/60 backdrop-blur-sm p-6 rounded-2xl border border-[#81D8D0]/30">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 border-4 border-[#81D8D0]/30 border-t-[#20B2AA] rounded-full animate-spin"></div>
-                  <div>
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">Processing Your Document</h3>
-                    <p className="text-gray-600">{processingStage}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 h-3 bg-[#EAD2AC] rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] transition-all duration-300 relative"
-                      style={{ width: `${uploadProgress}%` }}
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
-                    </div>
-                  </div>
-                  <span className="text-[#20B2AA] font-bold min-w-12">{uploadProgress}%</span>
-                </div>
-              </div>
-            )}
-
-            {/* Success Status */}
-            {success && processingResult && (
-              <div className="bg-[#20B2AA]/10 backdrop-blur-sm border border-[#20B2AA]/30 p-6 rounded-2xl">
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] rounded-full flex items-center justify-center text-3xl">
-                    ✅
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-gray-800 mb-1">Document Successfully Processed! 🎉</h3>
-                    <p className="text-gray-700">Your document has been analyzed with {processingResult.chunksStored} intelligent chunks.</p>
-                  </div>
-                </div>
-
-                <button 
-                  className="w-full max-w-md mx-auto block bg-gradient-to-r from-[#20B2AA] to-[#EBA536] hover:from-[#20B2AA] hover:to-[#EBA536] text-white font-bold py-4 px-8 rounded-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#20B2AA]/50"
-                  onClick={navigateToAnalysis}
-                >
-                  <div className="flex items-center justify-center gap-3">
-                    <span className="text-2xl">📊</span>
-                    <span className="text-lg">Start Legal Analysis</span>
-                  </div>
-                </button>
-              </div>
-            )}
+            <span>Sign In</span>
           </div>
-        </section>
+        </button>
+        <p className="text-sm text-gray-600 text-center mt-3">
+          Already have an account? Welcome back!
+        </p>
+      </div>
+
+      {/* Divider */}
+      <div className="flex items-center">
+        <div className="w-px h-16 bg-gradient-to-b from-transparent via-[#81D8D0] to-transparent sm:block hidden"></div>
+        <div className="w-16 h-px bg-gradient-to-r from-transparent via-[#81D8D0] to-transparent sm:hidden block"></div>
+        <span className="absolute bg-white px-4 py-2 text-gray-500 font-semibold rounded-full text-sm">
+          OR
+        </span>
+      </div>
+
+      {/* Signup Button */}
+      <div className="w-full sm:w-auto">
+        <button 
+          onClick={() => window.location.href = '/signup'}
+          className="w-full sm:w-auto px-12 py-6 bg-gradient-to-r from-[#EBA536] to-[#F4B942] text-white text-xl font-bold rounded-2xl shadow-2xl hover:shadow-3xl transform hover:scale-105 hover:-translate-y-2 transition-all duration-300 border-2 border-transparent hover:border-white/20"
+        >
+          <div className="flex items-center justify-center gap-3">
+            <div className="w-6 h-6">
+              <svg viewBox="0 0 24 24" fill="none" className="w-full h-full">
+                <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" strokeWidth="2"/>
+                <circle cx="8.5" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
+                <line x1="20" y1="8" x2="20" y2="14" stroke="currentColor" strokeWidth="2"/>
+                <line x1="23" y1="11" x2="17" y2="11" stroke="currentColor" strokeWidth="2"/>
+              </svg>
+            </div>
+            <span>Create Account</span>
+          </div>
+        </button>
+        <p className="text-sm text-gray-600 text-center mt-3">
+          New to KMRL-Vault? Get started now!
+        </p>
+      </div>
+    </div>
+
+    {/* Features Preview */}
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16">
+      <div className="text-center p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-[#81D8D0]/30 hover:border-[#20B2AA] hover:bg-[#81D8D0]/10 transition-all duration-300 hover:-translate-y-2">
+        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] rounded-full flex items-center justify-center">
+          <span className="text-2xl text-white">📄</span>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Smart Upload</h3>
+        <p className="text-sm text-gray-600">Drag & drop documents with AI-powered processing</p>
+      </div>
+
+      <div className="text-center p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-[#81D8D0]/30 hover:border-[#20B2AA] hover:bg-[#81D8D0]/10 transition-all duration-300 hover:-translate-y-2">
+        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-[#EBA536] to-[#F4B942] rounded-full flex items-center justify-center">
+          <span className="text-2xl text-white">🔍</span>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Intelligent Analysis</h3>
+        <p className="text-sm text-gray-600">Advanced AI insights and risk assessment</p>
+      </div>
+
+      <div className="text-center p-6 bg-white/50 backdrop-blur-sm rounded-2xl border border-[#81D8D0]/30 hover:border-[#20B2AA] hover:bg-[#81D8D0]/10 transition-all duration-300 hover:-translate-y-2">
+        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-[#20B2AA] to-[#EBA536] rounded-full flex items-center justify-center">
+          <span className="text-2xl text-white">💡</span>
+        </div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Smart Recommendations</h3>
+        <p className="text-sm text-gray-600">Get negotiation assistance and summaries</p>
+      </div>
+    </div>
+
+    {/* Call to Action */}
+    <div className="text-center mt-12">
+      <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#20B2AA]/20 to-[#81D8D0]/20 rounded-full border border-[#81D8D0]/30">
+        <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+        <span className="text-sm font-medium text-gray-700">Ready to revolutionize document management</span>
+      </div>
+    </div>
+  </div>
+</section>
+
 
         {/* Features Section */}
         <section className="py-20 px-4">

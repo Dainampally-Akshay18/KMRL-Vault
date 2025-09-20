@@ -1,160 +1,126 @@
+# app/database/connection.py
+
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import text
 import logging
-from tenacity import retry, stop_after_attempt, wait_exponential
-import os
-from dotenv import load_dotenv
-import asyncpg
-import socket
+import asyncio
+from typing import Dict, Any, Optional
 
-# Load environment variables
-load_dotenv()
+# --- IMPORT THE CENTRAL SETTINGS OBJECT ---
+# This is the single source of truth for all configuration
+from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Get database credentials from environment variables
-DB_USER = os.getenv("DB_USER")
-DB_PASSWORD = os.getenv("DB_PASSWORD")
-DB_HOST = os.getenv("DB_HOST")
-DB_PORT = os.getenv("DB_PORT", "6543")
-DB_NAME = os.getenv("DB_NAME")
-PROJECT_REF = os.getenv("PROJECT_REF")
-DB_DIRECT_HOST = os.getenv("DB_DIRECT_HOST")
+# --- USE THE DATABASE_URL DIRECTLY FROM SETTINGS ---
+# All the logic for building the URL is now handled in config.py
+DATABASE_URL = settings.DATABASE_URL
 
-# Format username for Supabase connection pooler
-def format_username():
-    if PROJECT_REF:
-        return f"postgres.{PROJECT_REF}"
-    return DB_USER
+# Log the URL for debugging (password is not logged by the settings object)
+logger.info(f"Database engine configured using central settings for host: {settings.DB_HOST}")
 
-# Construct the database URL
-FORMATTED_USER = format_username()
-DATABASE_URL = f"postgresql+asyncpg://{FORMATTED_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-
-logger.info(f"Database URL: postgresql+asyncpg://{FORMATTED_USER}:***@{DB_HOST}:{DB_PORT}/{DB_NAME}")
-
-# 🔥 FIXED: Create async engine with ALL necessary Supabase/pgbouncer compatibility settings
+# --- SQLAlchemy Engine and Session Configuration ---
+# This section remains the same, but it now uses the reliable DATABASE_URL from above
 engine = create_async_engine(
     DATABASE_URL,
-    echo=True,
+    echo=False,
     pool_pre_ping=True,
     pool_recycle=300,
-    pool_size=10,
-    max_overflow=20,
+    pool_size=5,
+    max_overflow=5,
+    pool_timeout=30,
     connect_args={
-        "timeout": 30,
-        "command_timeout": 10,
-        "statement_cache_size": 0,  # 🔥 CRITICAL: Disable prepared statement caching
-        "prepared_statement_cache_size": 0,  # 🔥 CRITICAL: Additional safety
-        "server_settings": {
-            "jit": "off",  # 🔥 Disable JIT which can cause issues with poolers
-        }
+        "statement_cache_size": 0,
+        "command_timeout": 60
     }
 )
 
-# Create async session maker
 AsyncSessionLocal = async_sessionmaker(
-    engine,
+    bind=engine,
     class_=AsyncSession,
     expire_on_commit=False
 )
 
-# Base class for models
 class Base(DeclarativeBase):
     pass
 
-# Dependency to get database session
+# --- Core Database Functions ---
 async def get_db():
+    """FastAPI dependency to get a database session."""
     async with AsyncSessionLocal() as session:
         try:
             yield session
-        except Exception as e:
-            await session.rollback()
-            logger.error(f"Database session error: {str(e)}")
-            raise
         finally:
             await session.close()
 
-# Test connectivity functions (keeping your existing logic)
-def test_port_open(host, port, timeout=10):
+async def test_connection() -> bool:
+    """Tests the database connection using the engine."""
     try:
-        socket.create_connection((host, port), timeout=timeout)
-        logger.info(f"Port {port} is open on {host}")
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        logger.info("✅ Database connection successful.")
         return True
-    except (socket.timeout, socket.error) as e:
-        logger.error(f"Port {port} is not open on {host}: {str(e)}")
-        return False
-
-def resolve_hostname(hostname):
-    try:
-        addr_info = socket.getaddrinfo(hostname, None)
-        ip_addresses = [addr[4][0] for addr in addr_info]
-        logger.info(f"Hostname {hostname} resolves to IP addresses: {ip_addresses}")
-        return ip_addresses
-    except socket.gaierror as e:
-        logger.error(f"Failed to resolve hostname {hostname}: {str(e)}")
-        return []
-
-def test_connectivity():
-    ip_addresses = resolve_hostname(DB_HOST)
-    if not ip_addresses:
-        return False
-    
-    port = int(DB_PORT)
-    for ip in ip_addresses:
-        if test_port_open(ip, port):
-            return True
-    return False
-
-# Test database connection
-async def test_connection():
-    try:
-        logger.info("Testing network connectivity...")
-        if not test_connectivity():
-            logger.error("Network connectivity test failed")
-            return False
-        
-        logger.info(f"Attempting to connect to database at {DB_HOST}:{DB_PORT}")
-        logger.info(f"Using username: {FORMATTED_USER}")
-        
-        # Use direct asyncpg connection with statement cache disabled
-        conn = await asyncpg.connect(
-            user=FORMATTED_USER,
-            password=DB_PASSWORD,
-            host=DB_HOST,
-            port=int(DB_PORT),
-            database=DB_NAME,
-            statement_cache_size=0
-        )
-        
-        result = await conn.fetchval("SELECT NOW()")
-        logger.info(f"Database connection test successful. Current time: {result}")
-        
-        await conn.close()
-        return True
-        
     except Exception as e:
-        logger.error(f"Database connection test failed: {str(e)}")
-        logger.error(f"Exception type: {type(e).__name__}")
+        logger.warning(f"⚠️ Database connection failed: {str(e)}")
         return False
 
-# 🔥 SIMPLIFIED: Initialize database with better error handling
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=4, max=10))
-async def init_db():
+async def create_tables():
+    """Creates all database tables defined in the models."""
     try:
-        # Test connection first
-        if not await test_connection():
-            raise Exception("Connection test failed before initialization")
-        
-        # Import all models here to ensure they are registered with SQLAlchemy
-        from app.models import user, document, analysis, audit
-        
-        # Create tables using the engine with disabled statement caching
         async with engine.begin() as conn:
+            from app.models import user
             await conn.run_sync(Base.metadata.create_all)
-        
-        logger.info("Database tables created successfully")
-        
+        logger.info("✅ Database tables created or verified successfully.")
     except Exception as e:
-        logger.error(f"Database initialization error: {str(e)}")
+        logger.error(f"❌ Failed to create database tables: {str(e)}")
         raise
+
+# --- Startup and Initialization Logic ---
+async def retry_init_db(retries=3, delay=5):
+    """Retries database connection and table creation in the background."""
+    for i in range(retries):
+        logger.info(f"🔄 Retrying database initialization... (Attempt {i+1}/{retries})")
+        if await test_connection():
+            try:
+                await create_tables()
+                return
+            except Exception:
+                pass
+        await asyncio.sleep(delay)
+    logger.error("❌ All database initialization attempts failed after multiple retries.")
+
+async def init_db():
+    """Initializes the database on application startup."""
+    logger.info("🚀 Starting database initialization process...")
+    if not await test_connection():
+        logger.info("🔄 Database not available. Scheduling background retries.")
+        asyncio.create_task(retry_init_db())
+    else:
+        asyncio.create_task(create_tables())
+
+# --- Health Check and Data Manager ---
+async def health_check():
+    """Provides a health status of the database connection."""
+    if await test_connection():
+        return {"status": "healthy", "database": "connected"}
+    else:
+        return {"status": "degraded", "database": "disconnected"}
+
+class RawDataManager:
+    """Utility class for executing raw SQL queries."""
+    def __init__(self, session: AsyncSession):
+        self.session = session
+
+    async def execute_query(self, query: str, params: Optional[Dict] = None):
+        """Executes a raw SQL query and fetches all results."""
+        try:
+            result = await self.session.execute(text(query), params or {})
+            return result.fetchall()
+        except Exception as e:
+            logger.error(f"Raw query failed: {str(e)}")
+            raise
+
+def get_raw_data_manager(session: AsyncSession) -> RawDataManager:
+    """FastAPI dependency to get the RawDataManager."""
+    return RawDataManager(session)
