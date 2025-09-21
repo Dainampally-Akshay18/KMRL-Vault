@@ -114,6 +114,10 @@ async def root():
         "docs": "/docs"
     }
 
+@app.head("/")
+async def head_root():
+    return {"message": "OK"}
+
 # Simple test endpoint
 @app.get("/ping")
 async def ping():

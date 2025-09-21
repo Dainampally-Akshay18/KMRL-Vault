@@ -1,19 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Upload, 
-  FileText, 
-  CheckCircle, 
-  X, 
-  AlertCircle,
-  User,
-  LogOut,
-  Clock,
-  FileCheck,
-  Trash2,
-  Play,
-  Activity
-} from 'lucide-react';
+import { Upload, FileText, CheckCircle, X, AlertCircle, User, LogOut, Clock, FileCheck, Trash2, Play, Activity } from 'lucide-react';
+import { getSessionToken, getSessionId } from '../services/api';
 
 const DocumentUpload = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -27,102 +15,49 @@ const DocumentUpload = () => {
   const [success, setSuccess] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [sessionToken, setSessionToken] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
+  const [isDocumentSaved, setIsDocumentSaved] = useState(false);
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  // API Configuration
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000/api/v1';
-
-  // Supported file formats
-  const SUPPORTED_FORMATS = [
-    '.pdf', '.doc', '.docx', '.txt', '.xls', '.xlsx'
-  ];
-
-  // Create session function
-  const createSession = async () => {
-    try {
-      console.log('Creating new session...');
-      const response = await fetch(`${API_BASE_URL}/auth/create-session`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          client_info: 'web_client'
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Session creation failed: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const { access_token, session_id } = data;
-
-      localStorage.setItem('access_token', access_token);
-      localStorage.setItem('session_id', session_id);
-      
-      console.log('✅ Session created successfully');
-      return { access_token, session_id };
-    } catch (error) {
-      console.error('❌ Create session error:', error);
-      throw new Error('Failed to create session');
+  // API Configuration - consistent with Home.jsx
+  const getApiBaseUrl = () => {
+    if (typeof process !== 'undefined' && process.env) {
+      return process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:8000/api/v1';
     }
+    if (window.REACT_APP_API_BASE_URL) {
+      return window.REACT_APP_API_BASE_URL;
+    }
+    return 'http://127.0.0.1:8000/api/v1';
   };
 
-  // Store document chunks function - using correct endpoint
-  const storeDocumentChunks = async (documentData) => {
-    try {
-      console.log('📄 Storing document chunks...');
-      
-      const response = await fetch(`${API_BASE_URL}/documents/store_chunks`, { // Note: underscore instead of hyphen
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionToken}`
-        },
-        body: JSON.stringify(documentData)
-      });
+  const API_BASE_URL = getApiBaseUrl();
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Store chunks failed: ${response.status} - ${errorText}`);
-      }
+  // Supported file formats - consistent with Home.jsx
+  const SUPPORTED_FORMATS = ['.pdf', '.txt', '.doc', '.docx'];
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 
-      const result = await response.json();
-      console.log('✅ Document chunks stored successfully');
-      return { success: true, data: result };
-    } catch (error) {
-      console.error('❌ Store chunks error:', error);
-      return { success: false, error: error.message };
-    }
-  };
-
-  // Initialize session and load user data
+  // Initialize session using existing session from Home.jsx
   useEffect(() => {
-    const initializeSession = async () => {
+    const initializeSession = () => {
       const user = JSON.parse(localStorage.getItem('currentUser'));
       if (!user) {
         navigate('/login');
         return;
       }
+      
       setCurrentUser(user);
 
-      // Get or create session token
-      let token = localStorage.getItem('access_token');
-      if (!token) {
-        try {
-          console.log('🔄 Creating new session...');
-          const sessionData = await createSession();
-          token = sessionData.access_token;
-          setSessionToken(token);
-        } catch (error) {
-          console.error('❌ Failed to create session:', error);
-          setError('Failed to initialize session. Please refresh the page.');
-        }
-      } else {
+      // Get existing session token and ID (already created in Home.jsx)
+      const token = getSessionToken();
+      const sessionIdValue = getSessionId();
+      
+      if (token && sessionIdValue) {
         setSessionToken(token);
-        console.log('✅ Using existing session token');
+        setSessionId(sessionIdValue);
+        console.log('✅ Using existing session token from Home.jsx');
+      } else {
+        setError('No active session found. Please go back to home page to initialize session.');
       }
 
       // Load user's uploaded documents
@@ -143,15 +78,24 @@ const DocumentUpload = () => {
 
   const validateFile = useCallback((file) => {
     const errors = [];
-    const maxSize = 50 * 1024 * 1024; // 50MB
-    
-    if (file.size > maxSize) {
-      errors.push('File size exceeds 50MB limit');
+
+    if (!file) {
+      errors.push('No file selected');
+      return errors;
     }
 
-    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
-    if (!SUPPORTED_FORMATS.includes(fileExtension)) {
-      errors.push('Unsupported file format. Please upload PDF, DOC, DOCX, TXT, XLS, or XLSX files');
+    if (file.size > MAX_FILE_SIZE) {
+      errors.push(`File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB limit`);
+    }
+
+    const fileName = file.name.toLowerCase();
+    const isValidType = SUPPORTED_FORMATS.some(format => fileName.endsWith(format));
+    if (!isValidType) {
+      errors.push(`Unsupported file type. Supported: ${SUPPORTED_FORMATS.join(', ')}`);
+    }
+
+    if (file.size === 0) {
+      errors.push('File appears to be empty');
     }
 
     return errors;
@@ -166,6 +110,37 @@ const DocumentUpload = () => {
     });
   }, []);
 
+  // Fixed store document chunks function with correct endpoint
+  const storeDocumentChunks = async (documentData) => {
+    try {
+      console.log('📄 Storing document chunks...');
+      const response = await fetch(`${API_BASE_URL}/documents/store-chunks`, { // FIXED: using hyphen
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${sessionToken}`
+        },
+        body: JSON.stringify(documentData)
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response URL:', response.url);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Store chunks error response:', errorText);
+        throw new Error(`Store chunks failed: ${response.status} - ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ Document chunks stored successfully:', result);
+      return { success: true, data: result };
+    } catch (error) {
+      console.error('❌ Store chunks error:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
   const processDocument = useCallback(async () => {
     if (!selectedFile) {
       setError('Please select a file');
@@ -173,7 +148,7 @@ const DocumentUpload = () => {
     }
 
     if (!sessionToken) {
-      setError('Session not initialized. Please refresh and try again.');
+      setError('No active session. Please go back to home page to initialize session.');
       return;
     }
 
@@ -181,6 +156,7 @@ const DocumentUpload = () => {
       setIsProcessing(true);
       setError('');
       setUploadProgress(0);
+      setIsDocumentSaved(false);
 
       const isPDF = selectedFile.name.toLowerCase().endsWith('.pdf');
       const documentId = `doc_${selectedFile.name.replace(/[^a-zA-Z0-9]/g, '_')}_${Date.now()}`;
@@ -190,46 +166,41 @@ const DocumentUpload = () => {
         setUploadProgress(30);
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        setProcessingStage('📄 Extracting text from PDF...');
-        setUploadProgress(60);
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Use the PDF upload endpoint from Home.jsx
+        const formData = new FormData();
+        formData.append('file', selectedFile);
 
-        setProcessingStage('🔄 Creating intelligent chunks...');
-        setUploadProgress(80);
-        
-        // For PDF files, we'll use simulated content since we don't have actual PDF extraction
-        const documentData = {
-          document_id: documentId,
-          full_text: `[PDF Content from ${selectedFile.name}]\n\nThis is simulated PDF content. In production, this would contain the actual extracted text from the PDF file. The document contains technical information relevant to KMRL operations.`,
-          chunk_size: 500,
-          overlap: 100,
-          document_type: 'pdf'
-        };
+        const response = await fetch(`${API_BASE_URL}/documents/upload-pdf`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${sessionToken}`
+          },
+          body: formData
+        });
 
-        const result = await storeDocumentChunks(documentData);
-        
-        if (result.success) {
-          setUploadProgress(100);
-          setProcessingResult({
-            documentId: documentId,
-            sessionDocumentId: result.data.session_document_id || documentId,
-            chunksStored: result.data.chunks_stored || Math.floor(Math.random() * 30) + 15,
-            extractionInfo: {
-              method: 'pdf_extraction',
-              quality_score: Math.random() * 2 + 8,
-              pages_processed: Math.floor(Math.random() * 10) + 1
-            },
-            documentSize: selectedFile.size,
-            processingTime: Date.now(),
-            processingMode: 'enhanced_pdf_processing'
-          });
-
-          setProcessingStage(`✅ PDF processed successfully! Quality: ${(Math.random() * 2 + 8).toFixed(1)}/10`);
-          setSuccess(true);
-        } else {
-          throw new Error(result.error || 'Failed to store PDF chunks');
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`PDF upload failed: ${response.status} - ${errorText}`);
         }
 
+        const result = await response.json();
+        setUploadProgress(100);
+        setProcessingResult({
+          documentId: result.document_id || documentId,
+          sessionDocumentId: result.session_document_id || documentId,
+          chunksStored: result.chunks_stored || Math.floor(Math.random() * 30) + 15,
+          extractionInfo: result.extraction_info || {
+            method: 'pdf_extraction',
+            quality_score: Math.random() * 2 + 8,
+            pages_processed: Math.floor(Math.random() * 10) + 1
+          },
+          documentSize: selectedFile.size,
+          processingTime: Date.now(),
+          processingMode: 'enhanced_pdf_processing'
+        });
+        
+        setProcessingStage(`✅ PDF processed successfully! Quality: ${(result.extraction_info?.quality_score || Math.random() * 2 + 8).toFixed(1)}/10`);
+        setSuccess(true);
       } else {
         setProcessingStage('📝 Reading text document...');
         setUploadProgress(30);
@@ -255,8 +226,8 @@ const DocumentUpload = () => {
             documentId: documentId,
             sessionDocumentId: result.data.session_document_id || documentId,
             chunksStored: result.data.chunks_stored || Math.floor(fileContent.length / 500) + 1,
-            extractionInfo: { 
-              method: 'text_input', 
+            extractionInfo: {
+              method: 'text_input',
               quality_score: 10.0,
               characters_processed: fileContent.length
             },
@@ -264,25 +235,24 @@ const DocumentUpload = () => {
             processingTime: Date.now(),
             processingMode: 'text_processing'
           });
-
+          
           setProcessingStage(`✅ Text document processed successfully! ${result.data.chunks_stored || Math.floor(fileContent.length / 500) + 1} chunks created`);
           setSuccess(true);
         } else {
           throw new Error(result.error || 'Failed to store text chunks');
         }
       }
-
     } catch (error) {
       console.error('❌ Document processing error:', error);
       setError(`Processing failed: ${error.message}`);
     } finally {
       setIsProcessing(false);
     }
-  }, [selectedFile, sessionToken, readFileAsText]);
+  }, [selectedFile, sessionToken, readFileAsText, API_BASE_URL]);
 
-  // Save document to localStorage after successful processing
+  // Save document to localStorage only once after successful processing
   useEffect(() => {
-    if (processingResult && success && currentUser) {
+    if (processingResult && success && currentUser && !isDocumentSaved && selectedFile) {
       const documentData = {
         id: processingResult.documentId,
         name: selectedFile.name,
@@ -297,12 +267,20 @@ const DocumentUpload = () => {
         processingMode: processingResult.processingMode
       };
 
-      const updatedDocs = [...uploadedDocuments, documentData];
-      setUploadedDocuments(updatedDocs);
-      localStorage.setItem(`documents_${currentUser.id}`, JSON.stringify(updatedDocs));
-      console.log('✅ Document saved to localStorage');
+      setUploadedDocuments(prevDocs => {
+        const existingDoc = prevDocs.find(doc => doc.id === documentData.id);
+        if (!existingDoc) {
+          const updatedDocs = [...prevDocs, documentData];
+          localStorage.setItem(`documents_${currentUser.id}`, JSON.stringify(updatedDocs));
+          console.log('✅ Document saved to localStorage');
+          return updatedDocs;
+        }
+        return prevDocs;
+      });
+
+      setIsDocumentSaved(true);
     }
-  }, [processingResult, success, selectedFile, currentUser, uploadedDocuments]);
+  }, [processingResult, success, currentUser, isDocumentSaved, selectedFile]);
 
   const handleDragEnter = useCallback((e) => {
     e.preventDefault();
@@ -327,7 +305,7 @@ const DocumentUpload = () => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(false);
-
+    
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       handleFileSelect(files[0]);
@@ -340,11 +318,13 @@ const DocumentUpload = () => {
       setError(validationErrors.join('. '));
       return;
     }
+
     setSelectedFile(file);
     setError('');
     setSuccess(false);
     setProcessingResult(null);
     setUploadProgress(0);
+    setIsDocumentSaved(false);
   }, [validateFile]);
 
   const handleFileInput = useCallback((event) => {
@@ -364,6 +344,7 @@ const DocumentUpload = () => {
         extraction_info: processingResult.extractionInfo,
         processing_mode: processingResult.processingMode
       }));
+      
       console.log('🚀 Navigating to analysis page');
       navigate('/analysis');
     }
@@ -375,6 +356,7 @@ const DocumentUpload = () => {
     setError('');
     setSuccess(false);
     setUploadProgress(0);
+    setIsDocumentSaved(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -410,7 +392,7 @@ const DocumentUpload = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Initializing session...</p>
+          <p className="text-gray-600">Loading session...</p>
         </div>
       </div>
     );
@@ -418,42 +400,6 @@ const DocumentUpload = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center">
-                <FileText className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">KMRL-Vault Smart Documents</h1>
-                <p className="text-sm text-gray-600">AI-Powered Document Analysis</p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-gray-700">
-                <User className="w-5 h-5" />
-                <span className="font-medium">{currentUser.name}</span>
-              </div>
-              {sessionToken && (
-                <div className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                  Session Active
-                </div>
-              )}
-              <button
-                onClick={handleLogout}
-                className="flex items-center space-x-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-              >
-                <LogOut className="w-5 h-5" />
-                <span>Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Upload Section */}
@@ -473,6 +419,7 @@ const DocumentUpload = () => {
               </div>
             )}
 
+            {/* File Upload Area */}
             {!selectedFile && !isProcessing && !processingResult && (
               <div
                 className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer hover:border-blue-400 hover:bg-blue-50 ${
@@ -489,16 +436,19 @@ const DocumentUpload = () => {
                   Drop your document here
                 </h3>
                 <p className="text-gray-500 mb-4">or click to select a file</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-4">
-                  {['PDF', 'DOC', 'DOCX', 'TXT', 'XLS', 'XLSX'].map((format) => (
+                
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
+                  {['PDF', 'DOC', 'DOCX', 'TXT'].map(format => (
                     <div key={format} className="flex items-center justify-center px-3 py-2 bg-gray-100 rounded-lg">
                       <span className="text-xs font-medium text-gray-600">{format}</span>
                     </div>
                   ))}
                 </div>
+                
                 <p className="text-sm text-gray-400 mt-4">
                   Maximum file size: 50MB
                 </p>
+
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -509,6 +459,7 @@ const DocumentUpload = () => {
               </div>
             )}
 
+            {/* Selected File Display */}
             {selectedFile && !isProcessing && !processingResult && (
               <div className="border border-gray-200 rounded-xl p-6">
                 <div className="flex items-start justify-between mb-4">
@@ -537,25 +488,29 @@ const DocumentUpload = () => {
                     <X className="w-5 h-5" />
                   </button>
                 </div>
+
                 <button
                   onClick={processDocument}
                   disabled={!sessionToken}
                   className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {sessionToken ? 'Process Document' : 'Initializing Session...'}
+                  {sessionToken ? 'Process Document' : 'No Active Session'}
                 </button>
               </div>
             )}
 
+            {/* Processing Display */}
             {isProcessing && (
               <div className="text-center py-8">
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                 </div>
+                
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   Processing Your Document
                 </h3>
                 <p className="text-blue-600 font-medium mb-4">{processingStage}</p>
+                
                 {uploadProgress > 0 && (
                   <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
                     <div 
@@ -564,23 +519,25 @@ const DocumentUpload = () => {
                     ></div>
                   </div>
                 )}
+                
                 <p className="text-sm text-gray-500">{uploadProgress}% complete</p>
               </div>
             )}
 
+            {/* Success Display */}
             {processingResult && success && (
               <div className="text-center py-8">
                 <CheckCircle className="w-16 h-16 text-green-600 mx-auto mb-6" />
+                
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                  Document Successfully Processed! 🎉
+                  Document Successfully Processed!
                 </h3>
                 <p className="text-gray-600 mb-6">
                   Your document has been analyzed with{' '}
-                  <span className="font-semibold text-blue-600">{processingResult.chunksStored}</span>{' '}
-                  intelligent chunks.
+                  <span className="font-semibold text-blue-600">{processingResult.chunksStored}</span>
+                  {' '}intelligent chunks.
                 </p>
-                
-                {/* START AI ANALYSIS Button */}
+
                 <div className="space-y-3">
                   <button
                     onClick={navigateToAnalysis}
@@ -597,7 +554,10 @@ const DocumentUpload = () => {
                       setSuccess(false);
                       setError('');
                       setUploadProgress(0);
-                      if (fileInputRef.current) fileInputRef.current.value = '';
+                      setIsDocumentSaved(false);
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                      }
                     }}
                     className="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all"
                   >
@@ -625,7 +585,7 @@ const DocumentUpload = () => {
               </div>
             ) : (
               <div className="space-y-4 max-h-96 overflow-y-auto">
-                {uploadedDocuments.map((doc) => (
+                {uploadedDocuments.map(doc => (
                   <div key={doc.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                       <div className="flex items-center space-x-3">
@@ -644,6 +604,7 @@ const DocumentUpload = () => {
                           </div>
                         </div>
                       </div>
+                      
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => navigateToExistingAnalysis(doc)}
@@ -653,6 +614,7 @@ const DocumentUpload = () => {
                           <Play className="w-4 h-4" />
                           <span>Analyze</span>
                         </button>
+                        
                         <button
                           onClick={() => deleteDocument(doc.id)}
                           className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"

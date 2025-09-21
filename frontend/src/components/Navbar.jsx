@@ -1,14 +1,20 @@
-// Navbar.jsx - Complete Tailwind CSS Version with New Color Palette
+// Navbar.jsx - Fixed Professional Version with Proper Visibility
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { User, LogOut, Menu, X, Home, Info, UserPlus, LogIn } from 'lucide-react';
 import logoImage from '../assets/logo.png';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
+  // Determine if we're on a page that needs solid background
+  const needsSolidBackground = ['/document-upload', '/analysis', '/about'].includes(location.pathname);
 
   // Handle scroll effect
   useEffect(() => {
@@ -16,12 +22,9 @@ const Navbar = () => {
       const scrollTop = window.scrollY;
       setIsScrolled(scrollTop > 20);
     };
-
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
 
   // Handle component mount animation
   useEffect(() => {
@@ -29,265 +32,337 @@ const Navbar = () => {
     return () => clearTimeout(timer);
   }, []);
 
+  // Check user authentication status
+  useEffect(() => {
+    const checkUser = () => {
+      const user = JSON.parse(localStorage.getItem('currentUser'));
+      setCurrentUser(user);
+    };
+    
+    checkUser();
+    
+    // Listen for storage changes to update user state
+    const handleStorageChange = () => {
+      checkUser();
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also check on interval for immediate updates
+    const interval = setInterval(checkUser, 1000);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [location]);
 
   // Close mobile menu when route changes
   useEffect(() => {
     setIsMobileMenuOpen(false);
+    setIsProfileDropdownOpen(false);
   }, [location]);
 
-
-  // Close mobile menu on escape key
+  // Close dropdowns on escape key and outside clicks
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape') {
         setIsMobileMenuOpen(false);
+        setIsProfileDropdownOpen(false);
       }
     };
 
+    const handleClickOutside = (e) => {
+      if (!e.target.closest('.profile-dropdown') && !e.target.closest('.profile-button')) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('click', handleClickOutside);
 
     if (isMobileMenuOpen) {
-      document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
 
-
     return () => {
       document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('click', handleClickOutside);
       document.body.style.overflow = 'unset';
     };
-  }, [isMobileMenuOpen]);
-
+  }, [isMobileMenuOpen, isProfileDropdownOpen]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  const toggleProfileDropdown = (e) => {
+    e.stopPropagation();
+    setIsProfileDropdownOpen(!isProfileDropdownOpen);
+  };
 
   const isActiveLink = (path) => {
     return location.pathname === path;
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('session_id');
+    setCurrentUser(null);
+    setIsProfileDropdownOpen(false);
+    navigate('/');
+  };
+
+  // Authenticated navigation links
+  const authenticatedNavLinks = [
+    { name: 'Home', path: '/document-upload', icon: Home },
+    { name: 'About', path: '/about', icon: Info }
+  ];
+
+  // Unauthenticated navigation links
+  const unauthenticatedNavLinks = [
+    { name: 'Login', path: '/login', icon: LogIn },
+    { name: 'Sign Up', path: '/register', icon: UserPlus }
+  ];
+
+  // Determine navbar background class based on context
+  const getNavbarBgClass = () => {
+    if (needsSolidBackground || isScrolled) {
+      return 'bg-white shadow-lg border-b border-gray-200';
+    }
+    return 'bg-gradient-to-r from-blue-600/90 to-indigo-600/90 backdrop-blur-md';
+  };
+
+  // Determine text color class based on background
+  const getTextColorClass = (isActive = false) => {
+    if (needsSolidBackground || isScrolled) {
+      return isActive ? 'text-white bg-blue-600' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50';
+    }
+    return isActive ? 'text-blue-100 bg-white/20' : 'text-white hover:text-blue-100 hover:bg-white/10';
+  };
 
   return (
     <>
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+        <div
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
-        >
-          <div 
-            className="absolute right-0 top-0 h-full w-80 bg-white/95 backdrop-blur-xl border-l border-[#81D8D0]/30 shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Mobile Menu Header */}
-            <div className="p-6 border-b border-[#81D8D0]/30">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] rounded-xl flex items-center justify-center">
-                  <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
-                    <path d="M12 2L4 7L12 12L20 7L12 2Z" stroke="currentColor" strokeWidth="2"/>
-                    <path d="M4 12L12 17L20 12" stroke="currentColor" strokeWidth="2"/>
-                  </svg>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent">KMRL</span>
-                  <span className="text-xl font-bold bg-gradient-to-r from-[#81D8D0] to-[#EBA536] bg-clip-text text-transparent">-Vault</span>
-                </div>
-              </div>
-            </div>
-
-
-            {/* Mobile Navigation */}
-            <nav className="flex-1 py-6">
-              <Link 
-                to="/" 
-                className={`flex items-center gap-4 px-6 py-4 text-lg font-semibold transition-all border-r-4 ${
-                  isActiveLink('/') 
-                    ? 'text-[#20B2AA] bg-[#81D8D0]/10 border-[#20B2AA]' 
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-[#CCFFEB]/30 border-transparent'
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <div className="w-6 h-6">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" strokeWidth="2"/>
-                    <polyline points="9,22 9,12 15,12 15,22" stroke="currentColor" strokeWidth="2"/>
-                  </svg>
-                </div>
-                <span>Home</span>
-                <div className="ml-auto w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <polyline points="9,18 15,12 9,6" stroke="currentColor" strokeWidth="2"/>
-                  </svg>
-                </div>
-              </Link>
-
-
-              <Link 
-                to="/about" 
-                className={`flex items-center gap-4 px-6 py-4 text-lg font-semibold transition-all border-r-4 ${
-                  isActiveLink('/about') 
-                    ? 'text-[#20B2AA] bg-[#81D8D0]/10 border-[#20B2AA]' 
-                    : 'text-gray-600 hover:text-gray-800 hover:bg-[#CCFFEB]/30 border-transparent'
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <div className="w-6 h-6">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2"/>
-                    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
-                  </svg>
-                </div>
-                <span>About</span>
-                <div className="ml-auto w-5 h-5 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <polyline points="9,18 15,12 9,6" stroke="currentColor" strokeWidth="2"/>
-                  </svg>
-                </div>
-              </Link>
-            </nav>
-
-
-            {/* Mobile Footer */}
-            <div className="p-6 border-t border-[#81D8D0]/30">
-              <div className="flex items-center gap-3 px-4 py-3 bg-[#CCFFEB]/50 rounded-xl">
-                <div className="w-3 h-3 bg-[#20B2AA] rounded-full animate-pulse"></div>
-                <span className="text-gray-700 font-medium">Online</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        />
       )}
 
-
-      {/* Main Navbar */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 backdrop-blur-xl shadow-2xl border-b border-[#81D8D0]/30 h-16' 
-          : 'bg-white/80 backdrop-blur-sm h-20'
-      } ${isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'}`}>
-        <div className="max-w-7xl mx-auto px-4 h-full">
-          <div className="flex items-center justify-between h-full">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 hover:scale-105 transition-transform duration-300">
+      {/* Main Navbar - FIXED Z-INDEX AND BACKGROUND */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-300 ${getNavbarBgClass()} ${
+          isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo Section */}
+            <Link
+              to={currentUser ? "/document-upload" : "/"}
+              className="flex items-center space-x-3 group"
+            >
               <div className="relative">
-                <div className={`bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] rounded-xl flex items-center justify-center shadow-lg ${
-                isScrolled ? 'w-10 h-10' : 'w-12 h-12'
-                }`}>
-                <img 
-                src={logoImage} 
-                alt="KMRL-Vault Logo" 
-                className={`${isScrolled ? 'w-10 h-10' : 'w-10 h-10'}`}
-              />
-              </div>  
-                <div className="absolute inset-0 bg-gradient-to-r from-[#20B2AA]/30 to-[#81D8D0]/30 rounded-xl blur animate-pulse"></div>
+                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
               </div>
-              <div className="flex items-baseline gap-1">
-                <span className={`font-bold bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent ${
-                  isScrolled ? 'text-xl' : 'text-2xl'
+              <div className="hidden sm:block">
+                <h1 className={`text-xl font-bold transition-colors duration-300 ${
+                  needsSolidBackground || isScrolled ? 'text-gray-900' : 'text-white'
                 }`}>
                   KMRL-Vault
-                </span>
-                <span className={`font-bold bg-gradient-to-r from-[#81D8D0] to-[#EBA536] bg-clip-text text-transparent ${
-                  isScrolled ? 'text-xl' : 'text-2xl'
+                </h1>
+                <p className={`text-sm transition-colors duration-300 ${
+                  needsSolidBackground || isScrolled ? 'text-gray-600' : 'text-blue-100'
                 }`}>
-
-                </span>
+                  Smart Documents
+                </p>
               </div>
             </Link>
 
-
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-8">
-              <Link 
-                to="/" 
-                className={`relative group flex items-center gap-2 px-4 py-2 font-semibold transition-all duration-300 ${
-                  isActiveLink('/') 
-                    ? 'text-[#20B2AA]' 
-                    : 'text-gray-600 hover:text-gray-800 hover:-translate-y-0.5'
-                }`}
-              >
-                <div className="w-5 h-5">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" strokeWidth="2"/>
-                    <polyline points="9,22 9,12 15,12 15,22" stroke="currentColor" strokeWidth="2"/>
-                  </svg>
-                </div>
-                <span>Home</span>
-                <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] transition-all duration-300 ${
-                  isActiveLink('/') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                }`}></div>
-              </Link>
+            <div className="hidden lg:flex items-center space-x-2">
+              {currentUser ? (
+                // Authenticated User Navigation
+                <>
+                  {authenticatedNavLinks.map((link) => {
+                    const Icon = link.icon;
+                    const isActive = isActiveLink(link.path);
+                    return (
+                      <Link
+                        key={link.name}
+                        to={link.path}
+                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${getTextColorClass(isActive)}`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{link.name}</span>
+                      </Link>
+                    );
+                  })}
 
+                  {/* User Profile Dropdown */}
+                  <div className="relative ml-4">
+                    <button
+                      onClick={toggleProfileDropdown}
+                      className={`profile-button flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${getTextColorClass()}`}
+                    >
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
+                        needsSolidBackground || isScrolled ? 'bg-blue-600 text-white' : 'bg-white/20 text-white'
+                      }`}>
+                        {currentUser.name.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="max-w-32 truncate">{currentUser.name}</span>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
 
-              <Link 
-                to="/about" 
-                className={`relative group flex items-center gap-2 px-4 py-2 font-semibold transition-all duration-300 ${
-                  isActiveLink('/about') 
-                    ? 'text-[#20B2AA]' 
-                    : 'text-gray-600 hover:text-gray-800 hover:-translate-y-0.5'
-                }`}
-              >
-                <div className="w-5 h-5">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M20 21V19C20 17.9391 19.5786 16.9217 18.8284 16.1716C18.0783 15.4214 17.0609 15 16 15H8C6.93913 15 5.92172 15.4214 5.17157 16.1716C4.42143 16.9217 4 17.9391 4 19V21" stroke="currentColor" strokeWidth="2"/>
-                    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2"/>
-                  </svg>
-                </div>
-                <span>About</span>
-                <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] transition-all duration-300 ${
-                  isActiveLink('/about') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                }`}></div>
-              </Link>
-
-
-              {/* Status Indicator */}
-              <div className="flex items-center gap-2 px-4 py-2 bg-[#CCFFEB]/50 backdrop-blur-sm border border-[#81D8D0]/50 rounded-full">
-                <div className="w-2 h-2 bg-[#20B2AA] rounded-full animate-pulse"></div>
-                <span className="text-sm font-medium text-gray-700">Online</span>
-              </div>
+                    {/* Profile Dropdown Menu */}
+                    {isProfileDropdownOpen && (
+                      <div className="profile-dropdown absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
+                        <div className="px-4 py-3 border-b border-gray-100">
+                          <p className="text-sm font-medium text-gray-900 truncate">{currentUser.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{currentUser.email}</p>
+                        </div>
+                        <button
+                          onClick={handleLogout}
+                          className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span>Logout</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
+              ) : (
+                // Unauthenticated User Navigation
+                <>
+                  {unauthenticatedNavLinks.map((link) => {
+                    const Icon = link.icon;
+                    const isActive = isActiveLink(link.path);
+                    return (
+                      <Link
+                        key={link.name}
+                        to={link.path}
+                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${getTextColorClass(isActive)}`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{link.name}</span>
+                      </Link>
+                    );
+                  })}
+                </>
+              )}
             </div>
 
-
             {/* Mobile Menu Button */}
-            <button 
-              className={`lg:hidden relative w-12 h-12 bg-[#CCFFEB]/50 backdrop-blur-sm border border-[#81D8D0]/50 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                isMobileMenuOpen ? 'bg-gradient-to-r from-[#20B2AA] to-[#81D8D0]' : 'hover:bg-[#81D8D0]/20'
-              }`}
+            <button
               onClick={toggleMobileMenu}
-              aria-label="Toggle navigation menu"
+              className={`lg:hidden p-2 rounded-lg transition-all duration-300 ${
+                needsSolidBackground || isScrolled 
+                  ? 'text-gray-700 hover:bg-gray-100' 
+                  : 'text-white hover:bg-white/10'
+              }`}
             >
-              <div className="w-5 h-5 flex flex-col justify-center items-center">
-                <span className={`block transition-all duration-300 ease-out h-0.5 w-5 rounded-sm ${
-                  isMobileMenuOpen 
-                    ? 'bg-white rotate-45 translate-y-1' 
-                    : 'bg-gray-700 -translate-y-0.5'
-                }`}></span>
-                <span className={`block transition-all duration-300 ease-out h-0.5 w-5 rounded-sm my-0.5 ${
-                  isMobileMenuOpen 
-                    ? 'bg-white opacity-0' 
-                    : 'bg-gray-700 opacity-100'
-                }`}></span>
-                <span className={`block transition-all duration-300 ease-out h-0.5 w-5 rounded-sm ${
-                  isMobileMenuOpen 
-                    ? 'bg-white -rotate-45 -translate-y-1' 
-                    : 'bg-gray-700 translate-y-0.5'
-                }`}></span>
-              </div>
+              {isMobileMenuOpen ? (
+                <X className="w-6 h-6" />
+              ) : (
+                <Menu className="w-6 h-6" />
+              )}
             </button>
           </div>
         </div>
 
-        {/* Navbar Glow Effect */}
-        {isScrolled && (
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#81D8D0]/50 to-transparent"></div>
-        )}
+        {/* Mobile Menu */}
+        <div
+          className={`lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-200 transition-all duration-300 z-40 ${
+            isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
+          }`}
+        >
+          <div className="px-4 py-6 space-y-4 max-h-screen overflow-y-auto">
+            {currentUser ? (
+              // Authenticated Mobile Menu
+              <>
+                {/* User Info */}
+                <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl mb-4">
+                  <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                    {currentUser.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-gray-900 truncate">{currentUser.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{currentUser.email}</p>
+                  </div>
+                </div>
+
+                {/* Navigation Links */}
+                {authenticatedNavLinks.map((link) => {
+                  const Icon = link.icon;
+                  const isActive = isActiveLink(link.path);
+                  return (
+                    <Link
+                      key={link.name}
+                      to={link.path}
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                        isActive 
+                          ? 'bg-blue-600 text-white shadow-lg' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span>{link.name}</span>
+                    </Link>
+                  );
+                })}
+
+                {/* Logout Button */}
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-3 w-full px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors mt-4 border-t border-gray-200 pt-6"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              </>
+            ) : (
+              // Unauthenticated Mobile Menu
+              <>
+                {unauthenticatedNavLinks.map((link) => {
+                  const Icon = link.icon;
+                  const isActive = isActiveLink(link.path);
+                  return (
+                    <Link
+                      key={link.name}
+                      to={link.path}
+                      className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                        isActive 
+                          ? 'bg-blue-600 text-white shadow-lg' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span>{link.name}</span>
+                    </Link>
+                  );
+                })}
+              </>
+            )}
+          </div>
+        </div>
       </nav>
+
+      {/* Navbar Spacer - ENSURE PROPER SPACING */}
+      <div className="h-16"></div>
     </>
   );
 };
-
 
 export default Navbar;
