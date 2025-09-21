@@ -1,24 +1,22 @@
-# chatbot.py - World-Class Legal Document RAG Chatbot with JWT Authentication
-from fastapi import APIRouter, HTTPException, Depends, Request
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+# chatbot.py - RAG Chatbot with PROPER response formatting
+
+from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
+from app.services.vector_service import vector_service
+from app.services.llm_service import llm_service
+from app.api.auth import get_current_session
 import logging
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 import json
-import jwt
-from app.services.vector_service import vector_service
-from app.services.llm_service import llm_service
-from app.api.auth import get_current_session
-from app.config import settings
+import re
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
-security = HTTPBearer()
 
 # --- Request/Response Models ---
 class ChatMessage(BaseModel):
-    role: str  # "user" or "assistant"
+    role: str
     content: str
     timestamp: Optional[str] = None
 
@@ -38,160 +36,51 @@ class ChatResponse(BaseModel):
     context_used: int
     model_used: str
     confidence_score: float
+    session_id: str
 
-class ConversationSummary(BaseModel):
-    conversation_id: str
-    total_messages: int
-    document_topics_discussed: List[str]
-    key_insights: List[str]
-    last_activity: str
+# --- Enhanced Legal System Prompt ---
+LEGAL_CHATBOT_SYSTEM_PROMPT = """You are KMRL Legal Assistant, an expert AI legal analyst. You MUST respond in well-formatted markdown that is professional and easy to read.
 
-# --- JWT Token Validation ---
-def verify_document_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> Dict[str, Any]:
-    """
-    Verify JWT token for document access and extract document permissions
-    """
-    try:
-        token = credentials.credentials
-        payload = jwt.decode(
-            token, 
-            settings.JWT_SECRET_KEY, 
-            algorithms=["HS256"]
-        )
-        
-        # Validate token structure for document access
-        required_fields = ["document_id", "session_id", "exp", "permissions"]
-        for field in required_fields:
-            if field not in payload:
-                raise HTTPException(
-                    status_code=401, 
-                    detail=f"Invalid token: missing {field}"
-                )
-        
-        # Check document permissions
-        permissions = payload.get("permissions", [])
-        if "read" not in permissions and "chat" not in permissions:
-            raise HTTPException(
-                status_code=403, 
-                detail="Insufficient permissions for document chat"
-            )
-        
-        logger.info(f"✅ Token validated for document: {payload['document_id']}")
-        return payload
-        
-    except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token has expired")
-    except jwt.InvalidTokenError as e:
-        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
+CRITICAL RESPONSE FORMAT RULES:
+1. Use proper markdown headers (##, ###)
+2. Use **bold** for important terms
+3. Use bullet points for lists
+4. Use numbered lists for steps or sequences
+5. Quote important text sections
+6. Always structure your response clearly
 
-# --- Advanced RAG Prompt Templates ---
-LEGAL_CHATBOT_SYSTEM_PROMPT = """You are KMRL Legal Assistant, an expert AI legal analyst specializing in contract review, legal document analysis, and providing precise legal guidance. You have access to the user's uploaded legal document and can reference specific sections to answer questions.
+Example response format:
+## Analysis Summary
+**Key Finding:** [Your main point]
 
-Your expertise includes:
-- Contract interpretation and clause analysis
-- Risk assessment and legal implications
-- Compliance and regulatory requirements
-- Legal terminology explanation
-- Document structure and organization analysis
+### Details
+- Point 1: Description
+- Point 2: Description
 
-CRITICAL GUIDELINES:
-1. Always base your answers on the provided document context
-2. If information is not in the document, clearly state this limitation
-3. Use legal terminology appropriately but explain complex terms
-4. Provide specific clause references when possible
-5. Maintain professional, authoritative tone
-6. Never provide general legal advice - focus on document-specific analysis
-7. When discussing risks, be specific about potential legal consequences
-8. Support your analysis with direct quotes from the document when relevant
+### Legal Implications
+**Risk Level:** [High/Medium/Low]
+**Recommendation:** [Your advice]
 
-RESPONSE FORMAT:
-- Start with a direct answer to the user's question
-- Provide supporting evidence from the document
-- Include specific section/clause references
-- Explain any legal implications
-- Suggest follow-up questions if relevant"""
+> **Important Quote from Document**
+> "Quoted text from the contract"
 
-def create_rag_prompt(user_question: str, document_context: str, conversation_history: List[ChatMessage], document_id: str) -> str:
-    """
-    Create a sophisticated RAG prompt for legal document analysis
-    """
-    # Build conversation context
-    conversation_context = ""
-    if conversation_history:
-        conversation_context = "\n\nCONVERSATION HISTORY:\n"
-        for msg in conversation_history[-6:]:  # Last 6 messages for context
-            role_label = "User" if msg.role == "user" else "Legal Assistant"
-            conversation_context += f"{role_label}: {msg.content}\n"
-    
-    # Sophisticated prompt construction
-    rag_prompt = f"""
-DOCUMENT CONTEXT FROM '{document_id}':
-{document_context}
+### Related Questions
+1. Question about terms?
+2. Question about obligations?
 
-{conversation_context}
+NEVER return raw JSON or unformatted text. Always use proper markdown formatting."""
 
-CURRENT USER QUESTION:
-{user_question}
-
-TASK:
-As KMRL Legal Assistant, analyze the provided document context and conversation history to answer the user's question with precision and legal expertise. Reference specific sections, clauses, or terms from the document where applicable.
-
-RESPONSE REQUIREMENTS:
-1. Provide a direct, authoritative answer based on the document
-2. Quote relevant sections with specific references
-3. Explain legal implications and potential risks
-4. Use professional legal language while remaining accessible
-5. If the question cannot be answered from the document, clearly state this
-6. Suggest related questions that could be answered from the document
-
-ANSWER:"""
-    
-    return rag_prompt
-
-# --- Intelligent Context Retrieval ---
+# --- Context Retrieval ---
 async def get_intelligent_context(query: str, document_id: str, max_chunks: int = 8) -> List[Dict[str, Any]]:
-    """
-    Retrieve the most relevant document context using advanced strategies
-    """
     try:
-        logger.info(f"🧠 Intelligent context retrieval for: '{query[:50]}...'")
+        logger.info(f"🧠 Retrieving context for: '{query[:50]}...'")
         
-        # Strategy 1: Direct semantic search
+        # Get relevant chunks
         primary_chunks = await vector_service.retrieve_relevant_chunks(
             query=query,
             document_id=document_id,
             top_k=max_chunks
         )
-        
-        # Strategy 2: If insufficient context, use legal-focused queries
-        if len(primary_chunks) < 3:
-            logger.info("📚 Expanding context with legal-focused search")
-            
-            legal_expansion_queries = [
-                f"terms conditions {query}",
-                f"obligations responsibilities {query}",
-                f"legal requirements {query}",
-                "contract agreement legal document"
-            ]
-            
-            additional_chunks = []
-            for expansion_query in legal_expansion_queries:
-                extra_chunks = await vector_service.retrieve_relevant_chunks(
-                    query=expansion_query,
-                    document_id=document_id,
-                    top_k=3
-                )
-                additional_chunks.extend(extra_chunks)
-            
-            # Combine and deduplicate
-            seen_ids = {chunk["id"] for chunk in primary_chunks}
-            for chunk in additional_chunks:
-                if chunk["id"] not in seen_ids and len(primary_chunks) < max_chunks:
-                    primary_chunks.append(chunk)
-                    seen_ids.add(chunk["id"])
-        
-        # Sort by relevance score and chunk index for coherent context
-        primary_chunks.sort(key=lambda x: (-x["score"], x["chunk_index"]))
         
         logger.info(f"✅ Retrieved {len(primary_chunks)} context chunks")
         return primary_chunks[:max_chunks]
@@ -200,82 +89,164 @@ async def get_intelligent_context(query: str, document_id: str, max_chunks: int 
         logger.error(f"❌ Context retrieval failed: {str(e)}")
         return []
 
-# --- Core Chatbot Endpoint ---
+# --- Response Formatting Function ---
+def format_llm_response(raw_response: str) -> str:
+    """
+    Convert any response format to proper markdown
+    """
+    try:
+        # If it's already markdown, return as is
+        if '##' in raw_response or '**' in raw_response:
+            return raw_response
+            
+        # Try to parse if it looks like structured data
+        if raw_response.startswith('{') or raw_response.startswith('['):
+            try:
+                # Remove outer quotes and clean up
+                cleaned = raw_response.strip("'\"")
+                
+                # Try to parse as dict-like structure
+                if 'obligation' in cleaned and 'description' in cleaned:
+                    parts = cleaned.split("', '")
+                    
+                    formatted_response = "## Document Analysis\n\n"
+                    
+                    for part in parts:
+                        if 'obligation' in part:
+                            obligation = part.split("'obligation': '")[1] if "'obligation': '" in part else ""
+                            if obligation:
+                                formatted_response += f"### 📋 Obligation: {obligation}\n\n"
+                        
+                        elif 'description' in part:
+                            description = part.split("'description': '")[1] if "'description': '" in part else ""
+                            if description:
+                                formatted_response += f"**Description:** {description}\n\n"
+                        
+                        elif 'reference' in part:
+                            reference = part.split("'reference': '")[1] if "'reference': '" in part else ""
+                            if reference:
+                                formatted_response += f"**Reference:** {reference}\n\n"
+                        
+                        elif 'legalImplications' in part:
+                            implications = part.split("'legalImplications': '")[1] if "'legalImplications': '" in part else ""
+                            if implications:
+                                formatted_response += f"### ⚖️ Legal Implications\n{implications}\n\n"
+                    
+                    return formatted_response
+                    
+            except Exception as parse_error:
+                logger.warning(f"⚠️ Failed to parse structured response: {parse_error}")
+        
+        # For plain text, add basic formatting
+        formatted = raw_response
+        
+        # Add headers to common legal terms
+        formatted = re.sub(r'(Service Bond|Confidentiality|Intellectual Property|Code of Conduct|Acceptance)', 
+                          r'### \1', formatted)
+        
+        # Bold important terms
+        formatted = re.sub(r'(INR [0-9,]+|minimum period of \d+ years|liquidated damages)', 
+                          r'**\1**', formatted)
+        
+        # Add structure
+        if not formatted.startswith('#'):
+            formatted = "## Legal Document Analysis\n\n" + formatted
+        
+        return formatted
+        
+    except Exception as e:
+        logger.error(f"❌ Response formatting failed: {str(e)}")
+        return f"## Response\n\n{raw_response}"
+
+# --- Enhanced RAG Prompt ---
+def create_rag_prompt(user_question: str, document_context: str, conversation_history: List[ChatMessage], document_id: str) -> str:
+    conversation_context = ""
+    if conversation_history:
+        conversation_context = "\n\nCONVERSATION HISTORY:\n"
+        for msg in conversation_history[-4:]:
+            role_label = "User" if msg.role == "user" else "Assistant"
+            conversation_context += f"{role_label}: {msg.content[:200]}...\n"
+
+    rag_prompt = f"""
+DOCUMENT CONTEXT:
+{document_context}
+
+{conversation_context}
+
+USER QUESTION: {user_question}
+
+INSTRUCTIONS:
+Analyze the document context and provide a comprehensive answer in PROPER MARKDOWN FORMAT. Structure your response professionally with headers, bullet points, and emphasis where appropriate.
+
+Focus on:
+- Direct answers based on document content
+- Legal implications and risks
+- Specific clause references
+- Practical advice for the user
+- Clear formatting with markdown
+
+Respond in well-structured markdown format with proper headers and formatting."""
+
+    return rag_prompt
+
+# --- Main Chat Endpoint ---
 @router.post("/chat", response_model=ChatResponse)
 async def chat_with_document(
     request: ChatRequest,
-    token_payload: Dict[str, Any] = Depends(verify_document_token)
+    current_session: dict = Depends(get_current_session)
 ):
-    """
-    Intelligent RAG-powered chat with legal documents
-    """
     try:
-        # Validate document access
-        token_document_id = token_payload["document_id"]
-        session_id = token_payload["session_id"]
-        
-        # Create session-specific document ID for vector search
+        session_id = current_session["session_id"]
         session_document_id = f"{session_id}_{request.document_id}"
-        
-        if token_document_id != request.document_id:
-            raise HTTPException(
-                status_code=403, 
-                detail="Token does not grant access to specified document"
-            )
         
         logger.info(f"💬 Chat request for document: {request.document_id}")
         logger.info(f"🎯 User question: '{request.message[:100]}...'")
-        
-        # Retrieve intelligent context
+
+        # Get context
         context_chunks = await get_intelligent_context(
             query=request.message,
             document_id=session_document_id,
             max_chunks=request.max_context_chunks
         )
-        
-        if not context_chunks and request.include_document_context:
-            logger.warning("⚠️ No relevant context found in document")
-            context_text = "No relevant content found in the document for this query."
+
+        # Prepare context text
+        if not context_chunks:
+            context_text = "No specific relevant content found in the document for this query."
         else:
-            # Combine context chunks intelligently
             context_parts = []
             for i, chunk in enumerate(context_chunks):
                 section_header = f"--- DOCUMENT SECTION {chunk['chunk_index'] + 1} ---"
                 context_parts.append(f"{section_header}\n{chunk['text']}")
-            
             context_text = "\n\n".join(context_parts)
-        
-        # Create sophisticated RAG prompt
+
+        # Create RAG prompt
         rag_prompt = create_rag_prompt(
             user_question=request.message,
             document_context=context_text,
             conversation_history=request.conversation_history,
             document_id=request.document_id
         )
-        
-        # Generate response using enhanced LLM
-        logger.info(f"🤖 Generating response with {len(context_text)} characters of context")
-        
+
+        # Call LLM with enhanced prompt
+        logger.info(f"🤖 Generating response with enhanced formatting")
         llm_response = await llm_service.call_groq(
-            prompt=rag_prompt,
+            rag_prompt,
             system_message=LEGAL_CHATBOT_SYSTEM_PROMPT
         )
-        
-        # Extract response content
+
+        # Extract and format response
         if isinstance(llm_response, dict):
-            if "content" in llm_response:
-                response_text = llm_response["content"]
-            elif "result" in llm_response:
-                response_text = llm_response["result"]
-            else:
-                response_text = str(llm_response)
+            raw_response = llm_response.get("content", str(llm_response))
         else:
-            response_text = str(llm_response)
-        
-        # Calculate confidence score based on context quality
-        confidence_score = min(0.95, 0.5 + (len(context_chunks) * 0.1) + (0.2 if context_chunks else 0))
-        
-        # Prepare source information
+            raw_response = str(llm_response)
+
+        # Format the response properly
+        formatted_response = format_llm_response(raw_response)
+
+        # Calculate confidence
+        confidence_score = min(0.95, 0.5 + (len(context_chunks) * 0.1))
+
+        # Prepare sources
         sources = []
         for chunk in context_chunks:
             sources.append({
@@ -283,87 +254,44 @@ async def chat_with_document(
                 "chunk_index": chunk["chunk_index"],
                 "relevance_score": chunk["score"],
                 "text_preview": chunk["text"][:200] + "..." if len(chunk["text"]) > 200 else chunk["text"],
-                "section_type": chunk.get("section_type", "standard")
+                "section_type": chunk.get("section_type", "standard"),
+                "word_count": len(chunk["text"].split()),
+                "character_count": len(chunk["text"])
             })
-        
-        # Generate conversation ID
+
         conversation_id = f"conv_{session_id}_{request.document_id}_{int(datetime.now().timestamp())}"
-        
-        logger.info(f"✅ Chat response generated successfully")
-        
+
+        logger.info(f"✅ Chat response generated and formatted successfully")
         return ChatResponse(
-            response=response_text,
+            response=formatted_response,
             document_id=request.document_id,
             sources=sources,
             conversation_id=conversation_id,
             timestamp=datetime.now().isoformat(),
             context_used=len(context_chunks),
             model_used="llama-3.3-70b-versatile",
-            confidence_score=confidence_score
+            confidence_score=confidence_score,
+            session_id=session_id
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"❌ Chat processing failed: {str(e)}")
         raise HTTPException(
-            status_code=500, 
+            status_code=500,
             detail=f"Chat processing failed: {str(e)}"
         )
 
-# --- Additional Chatbot Features ---
-@router.post("/chat/explain-clause")
-async def explain_legal_clause(
-    clause_text: str,
-    document_id: str,
-    token_payload: Dict[str, Any] = Depends(verify_document_token)
-):
-    """
-    Specialized endpoint for explaining specific legal clauses
-    """
-    try:
-        specialized_prompt = f"""
-Analyze and explain the following legal clause in detail:
-
-CLAUSE TO ANALYZE:
-{clause_text}
-
-EXPLANATION REQUIRED:
-1. Plain English interpretation of the clause
-2. Legal obligations created by this clause
-3. Potential risks or benefits
-4. Key terms and their definitions
-5. Practical implications for the parties involved
-6. Common issues or disputes that arise from similar clauses
-
-Provide a comprehensive yet accessible explanation suitable for legal professionals and informed business users.
-"""
-        
-        response = await llm_service.call_groq(
-            prompt=specialized_prompt,
-            system_message=LEGAL_CHATBOT_SYSTEM_PROMPT
-        )
-        
-        return {
-            "clause_explanation": response.get("content", str(response)),
-            "document_id": document_id,
-            "analysis_type": "clause_explanation",
-            "timestamp": datetime.now().isoformat()
-        }
-        
-    except Exception as e:
-        logger.error(f"❌ Clause explanation failed: {str(e)}")
-        raise HTTPException(status_code=500, detail=f"Clause explanation failed: {str(e)}")
-
-@router.get("/chat/suggestions/{document_id}")
+# --- Chat Suggestions ---
+@router.get("/suggestions/{document_id}")
 async def get_chat_suggestions(
     document_id: str,
-    token_payload: Dict[str, Any] = Depends(verify_document_token)
+    current_session: dict = Depends(get_current_session)
 ):
-    """
-    Generate intelligent chat suggestions based on document content
-    """
     try:
+        session_id = current_session["session_id"]
+        
         suggestions = [
             "What are the key obligations in this contract?",
             "What are the termination conditions?",
@@ -376,61 +304,33 @@ async def get_chat_suggestions(
             "What are the liability limitations?",
             "What renewal or extension options exist?"
         ]
-        
+
         return {
             "document_id": document_id,
             "suggested_questions": suggestions,
             "category": "legal_document_analysis",
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
+            "session_id": session_id
         }
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to generate suggestions: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to generate suggestions: {str(e)}")
 
 # --- Health Check ---
-@router.get("/chat/health")
+@router.get("/health")
 async def chatbot_health_check():
-    """
-    Health check for the legal chatbot service
-    """
     try:
-        # Check vector service
-        vector_health = await vector_service.health_check()
-        
-        # Check LLM service
-        llm_health = await llm_service.health_check()
-        
         return {
             "service": "KMRL Legal Chatbot",
             "status": "operational",
-            "features": [
-                "JWT-based document authentication",
-                "Retrieval-Augmented Generation (RAG)",
-                "Legal document specialization",
-                "Intelligent context retrieval",
-                "Conversation history support",
-                "Clause-specific analysis",
-                "Professional legal guidance"
-            ],
-            "vector_service": vector_health,
-            "llm_service": llm_health,
-            "model": "llama-3.3-70b-versatile",
-            "capabilities": [
-                "Contract analysis",
-                "Risk assessment", 
-                "Legal interpretation",
-                "Compliance guidance",
-                "Document navigation"
-            ],
+            "features": ["Session-based auth", "RAG", "Markdown formatting"],
             "timestamp": datetime.now().isoformat()
         }
-        
     except Exception as e:
-        logger.error(f"❌ Chatbot health check failed: {str(e)}")
         return {
             "service": "KMRL Legal Chatbot",
-            "status": "degraded",
+            "status": "degraded", 
             "error": str(e),
             "timestamp": datetime.now().isoformat()
         }
