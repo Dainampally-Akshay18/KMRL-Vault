@@ -125,7 +125,7 @@ const Navbar = () => {
   // Unauthenticated navigation links
   const unauthenticatedNavLinks = [
     { name: 'Login', path: '/login', icon: LogIn },
-    { name: 'Sign Up', path: '/register', icon: UserPlus }
+    { name: 'Sign Up', path: '/signup', icon: UserPlus }
   ];
 
   // Determine navbar background class based on context

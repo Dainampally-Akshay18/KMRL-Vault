@@ -59,7 +59,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = Field(..., env="SECRET_KEY")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=60 * 24, env="ACCESS_TOKEN_EXPIRE_MINUTES") # 24 hours
-
+    JWT_SECRET_KEY: str = Field(..., env="SECRET_KEY")
     # CORS
     ALLOWED_ORIGINS: list[str] = Field(
         default=["http://localhost:3000"],
