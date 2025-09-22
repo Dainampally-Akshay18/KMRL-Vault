@@ -205,7 +205,7 @@ const RagAnalysis = () => {
                   className={({ isActive }) =>
                     `group relative flex items-center gap-4 px-8 py-6 rounded-2xl transition-all duration-500 min-w-72 hover:scale-105 ${
                       isActive
-                        ? bg-gradient-to-r ${tab.gradient} text-white shadow-2xl shadow-current/30 scale-105
+                        ? `bg-gradient-to-r ${tab.gradient} text-white shadow-2xl shadow-current/30 scale-105`
                         : 'bg-slate-900/60 border border-slate-600/50 text-slate-300 hover:bg-slate-800/80 hover:text-white hover:border-slate-500/70 hover:shadow-2xl'
                     }`
                   }
