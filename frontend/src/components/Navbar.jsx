@@ -184,7 +184,7 @@ const Navbar = () => {
               </div>
               <div className="hidden sm:block">
                 {/* INCREASED TEXT SIZE FROM xl TO 2xl */}
-                <h1 className={`text-2xl font-black transition-colors duration-300 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent drop-shadow-lg`}>
+                <h1 className={text-2xl font-black transition-colors duration-300 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent drop-shadow-lg}>
                   KMRL-Vault
                 </h1>
                 {/* INCREASED SUBTITLE SIZE FROM sm TO base */}
@@ -208,7 +208,7 @@ const Navbar = () => {
                       <Link
                         key={link.name}
                         to={link.path}
-                        className={`flex items-center space-x-3 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass(isActive)}`}
+                        className={flex items-center space-x-3 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass(isActive)}}
                       >
                         {/* INCREASED ICON SIZE FROM 4x4 TO 5x5 */}
                         <Icon className="w-5 h-5" />
@@ -221,7 +221,7 @@ const Navbar = () => {
                   <div className="relative ml-4">
                     <button
                       onClick={toggleProfileDropdown}
-                      className={`profile-button flex items-center space-x-4 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass()}`}
+                      className={profile-button flex items-center space-x-4 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass()}}
                     >
                       {/* INCREASED AVATAR SIZE FROM 8x8 TO 10x10 */}
                       <div className="w-10 h-10 bg-gradient-to-br from-[#20B2AA] to-[#81D8D0] rounded-full flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-[#20B2AA]/30">
@@ -229,7 +229,7 @@ const Navbar = () => {
                       </div>
                       <span className="max-w-36 truncate">{currentUser.name}</span>
                       {/* INCREASED CHEVRON SIZE FROM 4x4 TO 5x5 */}
-                      <svg className={`w-5 h-5 transition-transform duration-300 ${isProfileDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className={w-5 h-5 transition-transform duration-300 ${isProfileDropdownOpen ? 'rotate-180' : ''}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
@@ -264,7 +264,7 @@ const Navbar = () => {
                       <Link
                         key={link.name}
                         to={link.path}
-                        className={`flex items-center space-x-3 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass(isActive)}`}
+                        className={flex items-center space-x-3 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass(isActive)}}
                       >
                         <Icon className="w-5 h-5" />
                         <span>{link.name}</span>
