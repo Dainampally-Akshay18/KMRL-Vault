@@ -60,14 +60,14 @@ const ChatBot = ({ documentInfo }) => {
             role: 'assistant',
             content: `# Hello! I'm your KMRL Legal Assistant 👋
 
-I can help you analyze and understand your document *"${documentInfo.document_name}"*. 
+I can help you analyze and understand your document **"${documentInfo.document_name}"**. 
 
 ## What I can do:
-- 📋 *Contract Analysis* - Analyze terms, conditions, and clauses
-- ⚖ *Risk Assessment* - Identify potential legal risks and liabilities  
-- 🔍 *Clause Explanation* - Explain complex legal terminology
-- 💼 *Compliance Guidance* - Check regulatory requirements
-- 🤝 *Negotiation Support* - Suggest improvements and alternatives
+- 📋 **Contract Analysis** - Analyze terms, conditions, and clauses
+- ⚖️ **Risk Assessment** - Identify potential legal risks and liabilities  
+- 🔍 **Clause Explanation** - Explain complex legal terminology
+- 💼 **Compliance Guidance** - Check regulatory requirements
+- 🤝 **Negotiation Support** - Suggest improvements and alternatives
 
 Feel free to ask me anything about the content, terms, clauses, or legal implications!`,
             timestamp: new Date().toISOString(),
@@ -81,7 +81,7 @@ Feel free to ask me anything about the content, terms, clauses, or legal implica
 
       } catch (err) {
         console.error('❌ ChatBot initialization error:', err);
-        setError(Failed to initialize chat assistant: ${err.message});
+        setError(`Failed to initialize chat assistant: ${err.message}`);
       }
     };
 
@@ -100,7 +100,7 @@ Feel free to ask me anything about the content, terms, clauses, or legal implica
   // Enhanced response parsing for better markdown formatting
   const parseAndFormatResponse = (rawResponse) => {
     // If response is already well-formatted, return as is
-    if (rawResponse.includes('#') || rawResponse.includes('') || rawResponse.includes('*')) {
+    if (rawResponse.includes('#') || rawResponse.includes('**') || rawResponse.includes('*')) {
       return rawResponse;
     }
 
@@ -113,36 +113,36 @@ Feel free to ask me anything about the content, terms, clauses, or legal implica
         
         // Person Involved
         if (parsed.person_involved) {
-          formattedResponse += ## 👤 Person Involved\n**${parsed.person_involved}**\n\n;
+          formattedResponse += `## 👤 Person Involved\n**${parsed.person_involved}**\n\n`;
         }
         
         // Description
         if (parsed.description) {
-          formattedResponse += ## 📋 Description\n${parsed.description}\n\n;
+          formattedResponse += `## 📋 Description\n${parsed.description}\n\n`;
         }
         
         // Reference
         if (parsed.reference) {
-          formattedResponse += ## 📍 Reference\n*${parsed.reference}*\n\n;
+          formattedResponse += `## 📍 Reference\n*${parsed.reference}*\n\n`;
         }
         
         // Legal Implications
         if (parsed.legalImplications) {
-          formattedResponse += ## ⚖ Legal Implications\n${parsed.legalImplications}\n\n;
+          formattedResponse += `## ⚖️ Legal Implications\n${parsed.legalImplications}\n\n`;
         }
         
         // Related Questions
         if (parsed.relatedQuestions && Array.isArray(parsed.relatedQuestions)) {
-          formattedResponse += ## 🤔 Related Questions\n;
+          formattedResponse += `## 🤔 Related Questions\n`;
           parsed.relatedQuestions.forEach((question, index) => {
-            formattedResponse += ${index + 1}. ${question}\n;
+            formattedResponse += `${index + 1}. ${question}\n`;
           });
           formattedResponse += '\n';
         }
         
         // Note
         if (parsed.note) {
-          formattedResponse += ## 📝 Note\n${parsed.note}\n;
+          formattedResponse += `## 📝 Note\n${parsed.note}\n`;
         }
         
         return formattedResponse;
@@ -154,7 +154,7 @@ Feel free to ask me anything about the content, terms, clauses, or legal implica
     // For plain text responses, add basic formatting
     return rawResponse
       .replace(/(\d+\.)/g, '\n$1') // Add line breaks before numbered lists
-      .replace(/([A-Z][A-Z\s]+:)/g, '\n*$1*') // Make ALL CAPS headers bold
+      .replace(/([A-Z][A-Z\s]+:)/g, '\n**$1**') // Make ALL CAPS headers bold
       .replace(/\n\s*\n/g, '\n\n') // Clean up multiple line breaks
       .trim();
   };
@@ -208,7 +208,7 @@ Feel free to ask me anything about the content, terms, clauses, or legal implica
         };
 
         setMessages(prev => [...prev, assistantMessage]);
-        setConversationId(response.conversation_id || conv_${Date.now()});
+        setConversationId(response.conversation_id || `conv_${Date.now()}`);
         
         console.log('✅ Chatbot response received successfully');
       } else {
@@ -224,13 +224,13 @@ Feel free to ask me anything about the content, terms, clauses, or legal implica
 
 I apologize, but I encountered an error while processing your question. 
 
-*Error Details:* ${err.message}
+**Error Details:** ${err.message}
 
 ### 🔄 Troubleshooting Steps:
-1. *Try rephrasing your question* - Sometimes different wording helps
-2. *Check document status* - Ensure your document is properly loaded
-3. *Refresh the page* - This can resolve temporary connection issues
-4. *Try a simpler question first* - Start with basic queries about the document
+1. **Try rephrasing your question** - Sometimes different wording helps
+2. **Check document status** - Ensure your document is properly loaded
+3. **Refresh the page** - This can resolve temporary connection issues
+4. **Try a simpler question first** - Start with basic queries about the document
 
 ### 💡 Suggested Questions:
 - "What is this document about?"
@@ -267,7 +267,7 @@ I apologize, but I encountered an error while processing your question.
       role: 'assistant',
       content: `# Conversation Cleared 🔄
 
-How can I help you analyze *"${documentInfo.document_name}"*?
+How can I help you analyze **"${documentInfo.document_name}"**?
 
 Feel free to ask me about:
 - Contract terms and conditions
@@ -342,7 +342,7 @@ Feel free to ask me about:
           <div className="min-w-0 flex-1">
             <h2 className="text-lg sm:text-xl font-bold truncate">KMRL Legal Assistant</h2>
             <p className="text-xs sm:text-sm opacity-90 truncate">
-              {isMobile ? "${documentInfo?.document_name?.slice(0, 20)}..." : Analyzing "${documentInfo?.document_name}" Legal Document}
+              {isMobile ? `"${documentInfo?.document_name?.slice(0, 20)}..."` : `Analyzing "${documentInfo?.document_name}" Legal Document`}
             </p>
           </div>
         </div>
@@ -367,7 +367,7 @@ Feel free to ask me about:
       {/* Chat Messages - Mobile Responsive */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6 min-h-0">
         {messages.map((message) => (
-          <div key={message.id} className={flex gap-3 sm:gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}}>
+          <div key={message.id} className={`flex gap-3 sm:gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {message.role === 'assistant' && (
               <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 mt-1">
                 🤖
@@ -511,7 +511,7 @@ Feel free to ask me about:
             </svg>
             <span className="text-xs sm:text-sm font-semibold text-slate-300">Suggested Questions</span>
           </div>
-          <div className={grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-2'} gap-2}>
+          <div className={`grid grid-cols-1 ${isMobile ? '' : 'md:grid-cols-2'} gap-2`}>
             {suggestions.slice(0, isMobile ? 3 : suggestions.length).map((suggestion, index) => (
               <button
                 key={index}
