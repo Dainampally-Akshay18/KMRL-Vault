@@ -65,7 +65,7 @@ const DocumentSummarization = ({ documentInfo }) => {
       if (response.success) {
         console.log('✅ Comprehensive document summary successful:', response.data);
         setAnalysis(response.data);
-        setDebugInfo(Comprehensive analysis complete: ${response.data.relevant_chunks?.length || 0} sections analyzed);
+        setDebugInfo(`Comprehensive analysis complete: ${response.data.relevant_chunks?.length || 0} sections analyzed`);
       } else {
         console.error('❌ Document summary failed:', response.error);
         setError(response.error || 'Document summary failed');
@@ -74,7 +74,7 @@ const DocumentSummarization = ({ documentInfo }) => {
     } catch (err) {
       console.error('❌ Document summary error:', err);
       setError('Summary generation failed. Please try again.');
-      setDebugInfo(Error: ${err.message});
+      setDebugInfo(`Error: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -329,7 +329,7 @@ const DocumentSummarization = ({ documentInfo }) => {
                       className="p-2 text-slate-400 hover:text-white transition-colors"
                     >
                       <svg 
-                        className={w-5 h-5 transform transition-transform ${expandedSections.financial ? 'rotate-180' : ''}}
+                        className={`w-5 h-5 transform transition-transform ${expandedSections.financial ? 'rotate-180' : ''}`}
                         viewBox="0 0 24 24" 
                         fill="none"
                       >
@@ -378,7 +378,7 @@ const DocumentSummarization = ({ documentInfo }) => {
                       className="p-2 text-slate-400 hover:text-white transition-colors"
                     >
                       <svg 
-                        className={w-5 h-5 transform transition-transform ${expandedSections.timeline ? 'rotate-180' : ''}}
+                        className={`w-5 h-5 transform transition-transform ${expandedSections.timeline ? 'rotate-180' : ''}`}
                         viewBox="0 0 24 24" 
                         fill="none"
                       >
@@ -426,7 +426,7 @@ const DocumentSummarization = ({ documentInfo }) => {
                       className="p-2 text-slate-400 hover:text-white transition-colors"
                     >
                       <svg 
-                        className={w-5 h-5 transform transition-transform ${expandedSections.obligations ? 'rotate-180' : ''}}
+                        className={`w-5 h-5 transform transition-transform ${expandedSections.obligations ? 'rotate-180' : ''}`}
                         viewBox="0 0 24 24" 
                         fill="none"
                       >
