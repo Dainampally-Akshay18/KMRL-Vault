@@ -1,4 +1,4 @@
-// Navbar.jsx - Fixed Professional Version with Proper Visibility
+// Navbar.jsx - Enhanced with Increased Height and Better Proportions
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User, LogOut, Menu, X, Home, Info, UserPlus, LogIn } from 'lucide-react';
@@ -128,70 +128,78 @@ const Navbar = () => {
     { name: 'Sign Up', path: '/signup', icon: UserPlus }
   ];
 
-  // Determine navbar background class based on context
+  // Enhanced navbar background with glassomorphism
   const getNavbarBgClass = () => {
-    if (needsSolidBackground || isScrolled) {
-      return 'bg-white shadow-lg border-b border-gray-200';
+    if (needsSolidBackground) {
+      return 'bg-white/95 backdrop-blur-2xl shadow-2xl border-b border-white/20';
     }
-    return 'bg-gradient-to-r from-blue-600/90 to-indigo-600/90 backdrop-blur-md';
+    if (isScrolled) {
+      return 'bg-white/10 backdrop-blur-2xl shadow-2xl border-b border-white/20';
+    }
+    return 'bg-white/5 backdrop-blur-2xl border-b border-white/10';
   };
 
-  // Determine text color class based on background
+  // Enhanced text colors with glassomorphism theme
   const getTextColorClass = (isActive = false) => {
-    if (needsSolidBackground || isScrolled) {
-      return isActive ? 'text-white bg-blue-600' : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50';
+    if (needsSolidBackground) {
+      return isActive 
+        ? 'text-white bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] shadow-lg shadow-[#20B2AA]/30' 
+        : 'text-gray-700 hover:text-[#20B2AA] hover:bg-[#20B2AA]/10 hover:shadow-lg hover:shadow-[#20B2AA]/20';
     }
-    return isActive ? 'text-blue-100 bg-white/20' : 'text-white hover:text-blue-100 hover:bg-white/10';
+    return isActive 
+      ? 'text-white bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] shadow-lg shadow-[#20B2AA]/30' 
+      : 'text-white/90 hover:text-white hover:bg-white/20 hover:shadow-lg hover:shadow-white/20';
   };
 
   return (
     <>
-      {/* Mobile Menu Overlay */}
+      {/* Enhanced Mobile Menu Overlay with Glassomorphism */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-slate-900/50 backdrop-blur-md z-40 lg:hidden"
           onClick={() => setIsMobileMenuOpen(false)}
         />
       )}
 
-      {/* Main Navbar - FIXED Z-INDEX AND BACKGROUND */}
+      {/* Enhanced Main Navbar with INCREASED HEIGHT */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-300 ${getNavbarBgClass()} ${
+        className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-500 ${getNavbarBgClass()} ${
           isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo Section */}
+          {/* INCREASED HEIGHT FROM h-16 TO h-24 */}
+          <div className="flex justify-between items-center h-24">
+            {/* Enhanced Logo Section with Larger Elements */}
             <Link
               to={currentUser ? "/document-upload" : "/"}
-              className="flex items-center space-x-3 group"
+              className="flex items-center space-x-4 group"
             >
               <div className="relative">
-                <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
+                {/* INCREASED LOGO SIZE FROM 12x12 TO 16x16 */}
+                <div className="w-16 h-16 bg-gradient-to-br from-[#20B2AA]/80 to-[#81D8D0]/80 backdrop-blur-sm rounded-3xl flex items-center justify-center shadow-2xl shadow-[#20B2AA]/30 border border-white/20 hover:scale-110 hover:shadow-3xl transition-all duration-300 group-hover:rotate-3">
+                  {/* INCREASED IMAGE SIZE FROM 8x8 TO 10x10 */}
+                  <img src={logoImage} alt="KMRL-Vault Logo" className="w-10 h-10" />
                 </div>
               </div>
               <div className="hidden sm:block">
-                <h1 className={`text-xl font-bold transition-colors duration-300 ${
-                  needsSolidBackground || isScrolled ? 'text-gray-900' : 'text-white'
-                }`}>
+                {/* INCREASED TEXT SIZE FROM xl TO 2xl */}
+                <h1 className={`text-2xl font-black transition-colors duration-300 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent drop-shadow-lg`}>
                   KMRL-Vault
                 </h1>
-                <p className={`text-sm transition-colors duration-300 ${
-                  needsSolidBackground || isScrolled ? 'text-gray-600' : 'text-blue-100'
-                }`}>
+                {/* INCREASED SUBTITLE SIZE FROM sm TO base */}
+                <p className={`text-base font-medium transition-colors duration-300 ${
+                  needsSolidBackground || isScrolled ? 'text-gray-600' : 'text-white/80'
+                } drop-shadow-sm`}>
                   Smart Documents
                 </p>
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden lg:flex items-center space-x-2">
+            {/* Enhanced Desktop Navigation with Larger Elements */}
+            <div className="hidden lg:flex items-center space-x-3">
               {currentUser ? (
-                // Authenticated User Navigation
+                // Enhanced Authenticated User Navigation
                 <>
                   {authenticatedNavLinks.map((link) => {
                     const Icon = link.icon;
@@ -200,43 +208,46 @@ const Navbar = () => {
                       <Link
                         key={link.name}
                         to={link.path}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${getTextColorClass(isActive)}`}
+                        className={`flex items-center space-x-3 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass(isActive)}`}
                       >
-                        <Icon className="w-4 h-4" />
+                        {/* INCREASED ICON SIZE FROM 4x4 TO 5x5 */}
+                        <Icon className="w-5 h-5" />
                         <span>{link.name}</span>
                       </Link>
                     );
                   })}
 
-                  {/* User Profile Dropdown */}
+                  {/* Enhanced User Profile Dropdown with Larger Elements */}
                   <div className="relative ml-4">
                     <button
                       onClick={toggleProfileDropdown}
-                      className={`profile-button flex items-center space-x-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${getTextColorClass()}`}
+                      className={`profile-button flex items-center space-x-4 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass()}`}
                     >
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                        needsSolidBackground || isScrolled ? 'bg-blue-600 text-white' : 'bg-white/20 text-white'
-                      }`}>
+                      {/* INCREASED AVATAR SIZE FROM 8x8 TO 10x10 */}
+                      <div className="w-10 h-10 bg-gradient-to-br from-[#20B2AA] to-[#81D8D0] rounded-full flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-[#20B2AA]/30">
                         {currentUser.name.charAt(0).toUpperCase()}
                       </div>
-                      <span className="max-w-32 truncate">{currentUser.name}</span>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <span className="max-w-36 truncate">{currentUser.name}</span>
+                      {/* INCREASED CHEVRON SIZE FROM 4x4 TO 5x5 */}
+                      <svg className={`w-5 h-5 transition-transform duration-300 ${isProfileDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
 
-                    {/* Profile Dropdown Menu */}
+                    {/* Enhanced Profile Dropdown Menu */}
                     {isProfileDropdownOpen && (
-                      <div className="profile-dropdown absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-50">
-                        <div className="px-4 py-3 border-b border-gray-100">
-                          <p className="text-sm font-medium text-gray-900 truncate">{currentUser.name}</p>
-                          <p className="text-xs text-gray-500 truncate">{currentUser.email}</p>
+                      <div className="profile-dropdown absolute right-0 mt-3 w-72 bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 py-4 z-50 animate-in slide-in-from-top-2">
+                        <div className="px-8 py-5 border-b border-white/20">
+                          {/* INCREASED TEXT SIZES */}
+                          <p className="text-base font-bold text-white truncate drop-shadow-sm">{currentUser.name}</p>
+                          <p className="text-sm text-white/70 truncate drop-shadow-sm">{currentUser.email}</p>
                         </div>
                         <button
                           onClick={handleLogout}
-                          className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          className="flex items-center space-x-4 w-full px-8 py-4 text-base font-bold text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 rounded-2xl mx-2 mt-2 hover:shadow-lg hover:shadow-red-500/20"
                         >
-                          <LogOut className="w-4 h-4" />
+                          {/* INCREASED LOGOUT ICON SIZE */}
+                          <LogOut className="w-5 h-5" />
                           <span>Logout</span>
                         </button>
                       </div>
@@ -244,7 +255,7 @@ const Navbar = () => {
                   </div>
                 </>
               ) : (
-                // Unauthenticated User Navigation
+                // Enhanced Unauthenticated User Navigation
                 <>
                   {unauthenticatedNavLinks.map((link) => {
                     const Icon = link.icon;
@@ -253,9 +264,9 @@ const Navbar = () => {
                       <Link
                         key={link.name}
                         to={link.path}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${getTextColorClass(isActive)}`}
+                        className={`flex items-center space-x-3 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass(isActive)}`}
                       >
-                        <Icon className="w-4 h-4" />
+                        <Icon className="w-5 h-5" />
                         <span>{link.name}</span>
                       </Link>
                     );
@@ -264,46 +275,49 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Enhanced Mobile Menu Button with Larger Size */}
             <button
               onClick={toggleMobileMenu}
-              className={`lg:hidden p-2 rounded-lg transition-all duration-300 ${
+              className={`lg:hidden p-4 rounded-2xl transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-110 hover:shadow-lg ${
                 needsSolidBackground || isScrolled 
-                  ? 'text-gray-700 hover:bg-gray-100' 
-                  : 'text-white hover:bg-white/10'
+                  ? 'text-gray-700 hover:bg-[#20B2AA]/10 hover:text-[#20B2AA] hover:shadow-[#20B2AA]/20' 
+                  : 'text-white/90 hover:bg-white/20 hover:text-white hover:shadow-white/20'
               }`}
             >
+              {/* INCREASED HAMBURGER ICON SIZE FROM 6x6 TO 7x7 */}
               {isMobileMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-7 h-7" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-7 h-7" />
               )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Enhanced Mobile Menu with Better Proportions */}
         <div
-          className={`lg:hidden absolute top-full left-0 right-0 bg-white shadow-lg border-t border-gray-200 transition-all duration-300 z-40 ${
+          className={`lg:hidden absolute top-full left-0 right-0 bg-white/10 backdrop-blur-2xl shadow-2xl border-t border-white/20 transition-all duration-500 z-40 ${
             isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
           }`}
         >
-          <div className="px-4 py-6 space-y-4 max-h-screen overflow-y-auto">
+          <div className="px-6 py-8 space-y-5 max-h-screen overflow-y-auto">
             {currentUser ? (
-              // Authenticated Mobile Menu
+              // Enhanced Authenticated Mobile Menu
               <>
-                {/* User Info */}
-                <div className="flex items-center space-x-3 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl mb-4">
-                  <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
+                {/* Enhanced User Info Card with Better Proportions */}
+                <div className="flex items-center space-x-5 p-8 bg-gradient-to-r from-[#20B2AA]/20 to-[#81D8D0]/20 backdrop-blur-sm rounded-2xl mb-8 border border-white/20 shadow-lg">
+                  {/* INCREASED MOBILE AVATAR SIZE FROM 14x14 TO 16x16 */}
+                  <div className="w-16 h-16 bg-gradient-to-br from-[#20B2AA] to-[#81D8D0] text-white rounded-2xl flex items-center justify-center text-xl font-bold shadow-lg shadow-[#20B2AA]/30">
                     {currentUser.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">{currentUser.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{currentUser.email}</p>
+                    {/* INCREASED MOBILE TEXT SIZES */}
+                    <p className="text-lg font-bold text-white truncate drop-shadow-sm">{currentUser.name}</p>
+                    <p className="text-base text-white/70 truncate drop-shadow-sm">{currentUser.email}</p>
                   </div>
                 </div>
 
-                {/* Navigation Links */}
+                {/* Enhanced Navigation Links with Better Sizing */}
                 {authenticatedNavLinks.map((link) => {
                   const Icon = link.icon;
                   const isActive = isActiveLink(link.path);
@@ -311,29 +325,30 @@ const Navbar = () => {
                     <Link
                       key={link.name}
                       to={link.path}
-                      className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                      className={`flex items-center space-x-5 px-8 py-5 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105 hover:shadow-lg ${
                         isActive 
-                          ? 'bg-blue-600 text-white shadow-lg' 
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] text-white shadow-lg shadow-[#20B2AA]/30' 
+                          : 'text-white/90 hover:bg-white/20 hover:text-white hover:shadow-white/20'
                       }`}
                     >
-                      <Icon className="w-5 h-5" />
+                      {/* INCREASED MOBILE ICONS FROM 5x5 TO 6x6 */}
+                      <Icon className="w-6 h-6" />
                       <span>{link.name}</span>
                     </Link>
                   );
                 })}
 
-                {/* Logout Button */}
+                {/* Enhanced Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-3 w-full px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-xl transition-colors mt-4 border-t border-gray-200 pt-6"
+                  className="flex items-center space-x-5 w-full px-8 py-5 text-base font-bold text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-2xl transition-all duration-300 mt-8 border-t border-white/20 pt-10 backdrop-blur-sm border border-red-500/30 hover:scale-105 hover:shadow-lg hover:shadow-red-500/20"
                 >
-                  <LogOut className="w-5 h-5" />
+                  <LogOut className="w-6 h-6" />
                   <span>Logout</span>
                 </button>
               </>
             ) : (
-              // Unauthenticated Mobile Menu
+              // Enhanced Unauthenticated Mobile Menu
               <>
                 {unauthenticatedNavLinks.map((link) => {
                   const Icon = link.icon;
@@ -342,13 +357,13 @@ const Navbar = () => {
                     <Link
                       key={link.name}
                       to={link.path}
-                      className={`flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                      className={`flex items-center space-x-5 px-8 py-5 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105 hover:shadow-lg ${
                         isActive 
-                          ? 'bg-blue-600 text-white shadow-lg' 
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] text-white shadow-lg shadow-[#20B2AA]/30' 
+                          : 'text-white/90 hover:bg-white/20 hover:text-white hover:shadow-white/20'
                       }`}
                     >
-                      <Icon className="w-5 h-5" />
+                      <Icon className="w-6 h-6" />
                       <span>{link.name}</span>
                     </Link>
                   );
@@ -359,8 +374,8 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Navbar Spacer - ENSURE PROPER SPACING */}
-      <div className="h-16"></div>
+      {/* UPDATED Navbar Spacer - INCREASED FROM 16 TO 24 */}
+      <div className="h-24"></div>
     </>
   );
 };
