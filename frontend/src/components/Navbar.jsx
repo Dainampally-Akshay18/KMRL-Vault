@@ -1,4 +1,4 @@
-// Navbar.jsx - Enhanced with Increased Height and Better Proportions
+// Navbar.jsx - Enhanced with Consistent Glassomorphism Across All Pages
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User, LogOut, Menu, X, Home, Info, UserPlus, LogIn } from 'lucide-react';
@@ -12,9 +12,6 @@ const Navbar = () => {
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-
-  // Determine if we're on a page that needs solid background
-  const needsSolidBackground = ['/document-upload', '/analysis', '/about'].includes(location.pathname);
 
   // Handle scroll effect
   useEffect(() => {
@@ -128,27 +125,29 @@ const Navbar = () => {
     { name: 'Sign Up', path: '/signup', icon: UserPlus }
   ];
 
-  // Enhanced navbar background with glassomorphism
+  // ✨ UPDATED: Consistent glassomorphic navbar background across all pages
   const getNavbarBgClass = () => {
-    if (needsSolidBackground) {
-      return 'bg-white/95 backdrop-blur-2xl shadow-2xl border-b border-white/20';
-    }
     if (isScrolled) {
-      return 'bg-white/10 backdrop-blur-2xl shadow-2xl border-b border-white/20';
+      return 'bg-slate-900/30 backdrop-blur-2xl shadow-2xl border-b border-slate-600/40';
     }
-    return 'bg-white/5 backdrop-blur-2xl border-b border-white/10';
+    return 'bg-slate-900/20 backdrop-blur-2xl border-b border-slate-600/30';
   };
 
-  // Enhanced text colors with glassomorphism theme
+  // ✨ UPDATED: Consistent text colors that work on glassomorphic background
   const getTextColorClass = (isActive = false) => {
-    if (needsSolidBackground) {
-      return isActive 
-        ? 'text-white bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] shadow-lg shadow-[#20B2AA]/30' 
-        : 'text-gray-700 hover:text-[#20B2AA] hover:bg-[#20B2AA]/10 hover:shadow-lg hover:shadow-[#20B2AA]/20';
-    }
     return isActive 
       ? 'text-white bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] shadow-lg shadow-[#20B2AA]/30' 
       : 'text-white/90 hover:text-white hover:bg-white/20 hover:shadow-lg hover:shadow-white/20';
+  };
+
+  // ✨ UPDATED: Consistent subtitle color for glassomorphic theme
+  const getSubtitleColorClass = () => {
+    return 'text-white/80';
+  };
+
+  // ✨ UPDATED: Consistent mobile menu button colors
+  const getMobileButtonColorClass = () => {
+    return 'text-white/90 hover:bg-white/20 hover:text-white hover:shadow-white/20';
   };
 
   return (
@@ -161,14 +160,13 @@ const Navbar = () => {
         />
       )}
 
-      {/* Enhanced Main Navbar with INCREASED HEIGHT */}
+      {/* Enhanced Main Navbar with Consistent Glassomorphism */}
       <nav
         className={`fixed top-0 left-0 right-0 z-[9999] transition-all duration-500 ${getNavbarBgClass()} ${
           isLoaded ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* INCREASED HEIGHT FROM h-16 TO h-24 */}
           <div className="flex justify-between items-center h-24">
             {/* Enhanced Logo Section with Larger Elements */}
             <Link
@@ -176,21 +174,15 @@ const Navbar = () => {
               className="flex items-center space-x-4 group"
             >
               <div className="relative">
-                {/* INCREASED LOGO SIZE FROM 12x12 TO 16x16 */}
                 <div className="w-16 h-16 bg-gradient-to-br from-[#20B2AA]/80 to-[#81D8D0]/80 backdrop-blur-sm rounded-3xl flex items-center justify-center shadow-2xl shadow-[#20B2AA]/30 border border-white/20 hover:scale-110 hover:shadow-3xl transition-all duration-300 group-hover:rotate-3">
-                  {/* INCREASED IMAGE SIZE FROM 8x8 TO 10x10 */}
                   <img src={logoImage} alt="KMRL-Vault Logo" className="w-10 h-10" />
                 </div>
               </div>
               <div className="hidden sm:block">
-                {/* INCREASED TEXT SIZE FROM xl TO 2xl */}
-                <h1 className={`text-2xl font-black transition-colors duration-300 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent drop-shadow-lg`}>
+                <h1 className="text-2xl font-black transition-colors duration-300 bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] bg-clip-text text-transparent drop-shadow-lg">
                   KMRL-Vault
                 </h1>
-                {/* INCREASED SUBTITLE SIZE FROM sm TO base */}
-                <p className={`text-base font-medium transition-colors duration-300 ${
-                  needsSolidBackground || isScrolled ? 'text-gray-600' : 'text-white/80'
-                } drop-shadow-sm`}>
+                <p className={`text-base font-medium transition-colors duration-300 ${getSubtitleColorClass()} drop-shadow-sm`}>
                   Smart Documents
                 </p>
               </div>
@@ -210,7 +202,6 @@ const Navbar = () => {
                         to={link.path}
                         className={`flex items-center space-x-3 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass(isActive)}`}
                       >
-                        {/* INCREASED ICON SIZE FROM 4x4 TO 5x5 */}
                         <Icon className="w-5 h-5" />
                         <span>{link.name}</span>
                       </Link>
@@ -223,12 +214,10 @@ const Navbar = () => {
                       onClick={toggleProfileDropdown}
                       className={`profile-button flex items-center space-x-4 px-8 py-4 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:-translate-y-1 ${getTextColorClass()}`}
                     >
-                      {/* INCREASED AVATAR SIZE FROM 8x8 TO 10x10 */}
                       <div className="w-10 h-10 bg-gradient-to-br from-[#20B2AA] to-[#81D8D0] rounded-full flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-[#20B2AA]/30">
                         {currentUser.name.charAt(0).toUpperCase()}
                       </div>
                       <span className="max-w-36 truncate">{currentUser.name}</span>
-                      {/* INCREASED CHEVRON SIZE FROM 4x4 TO 5x5 */}
                       <svg className={`w-5 h-5 transition-transform duration-300 ${isProfileDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
@@ -236,9 +225,8 @@ const Navbar = () => {
 
                     {/* Enhanced Profile Dropdown Menu */}
                     {isProfileDropdownOpen && (
-                      <div className="profile-dropdown absolute right-0 mt-3 w-72 bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 py-4 z-50 animate-in slide-in-from-top-2">
-                        <div className="px-8 py-5 border-b border-white/20">
-                          {/* INCREASED TEXT SIZES */}
+                      <div className="profile-dropdown absolute right-0 mt-3 w-72 bg-slate-900/20 backdrop-blur-2xl rounded-2xl shadow-2xl border border-slate-600/40 py-4 z-50 animate-in slide-in-from-top-2">
+                        <div className="px-8 py-5 border-b border-slate-600/30">
                           <p className="text-base font-bold text-white truncate drop-shadow-sm">{currentUser.name}</p>
                           <p className="text-sm text-white/70 truncate drop-shadow-sm">{currentUser.email}</p>
                         </div>
@@ -246,7 +234,6 @@ const Navbar = () => {
                           onClick={handleLogout}
                           className="flex items-center space-x-4 w-full px-8 py-4 text-base font-bold text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-all duration-300 rounded-2xl mx-2 mt-2 hover:shadow-lg hover:shadow-red-500/20"
                         >
-                          {/* INCREASED LOGOUT ICON SIZE */}
                           <LogOut className="w-5 h-5" />
                           <span>Logout</span>
                         </button>
@@ -275,16 +262,11 @@ const Navbar = () => {
               )}
             </div>
 
-            {/* Enhanced Mobile Menu Button with Larger Size */}
+            {/* Enhanced Mobile Menu Button with Consistent Styling */}
             <button
               onClick={toggleMobileMenu}
-              className={`lg:hidden p-4 rounded-2xl transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-110 hover:shadow-lg ${
-                needsSolidBackground || isScrolled 
-                  ? 'text-gray-700 hover:bg-[#20B2AA]/10 hover:text-[#20B2AA] hover:shadow-[#20B2AA]/20' 
-                  : 'text-white/90 hover:bg-white/20 hover:text-white hover:shadow-white/20'
-              }`}
+              className={`lg:hidden p-4 rounded-2xl transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-110 hover:shadow-lg ${getMobileButtonColorClass()}`}
             >
-              {/* INCREASED HAMBURGER ICON SIZE FROM 6x6 TO 7x7 */}
               {isMobileMenuOpen ? (
                 <X className="w-7 h-7" />
               ) : (
@@ -294,9 +276,9 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Enhanced Mobile Menu with Better Proportions */}
+        {/* Enhanced Mobile Menu with Consistent Glassomorphism */}
         <div
-          className={`lg:hidden absolute top-full left-0 right-0 bg-white/10 backdrop-blur-2xl shadow-2xl border-t border-white/20 transition-all duration-500 z-40 ${
+          className={`lg:hidden absolute top-full left-0 right-0 bg-slate-900/20 backdrop-blur-2xl shadow-2xl border-t border-slate-600/30 transition-all duration-500 z-40 ${
             isMobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full pointer-events-none'
           }`}
         >
@@ -305,13 +287,11 @@ const Navbar = () => {
               // Enhanced Authenticated Mobile Menu
               <>
                 {/* Enhanced User Info Card with Better Proportions */}
-                <div className="flex items-center space-x-5 p-8 bg-gradient-to-r from-[#20B2AA]/20 to-[#81D8D0]/20 backdrop-blur-sm rounded-2xl mb-8 border border-white/20 shadow-lg">
-                  {/* INCREASED MOBILE AVATAR SIZE FROM 14x14 TO 16x16 */}
+                <div className="flex items-center space-x-5 p-8 bg-gradient-to-r from-[#20B2AA]/20 to-[#81D8D0]/20 backdrop-blur-sm rounded-2xl mb-8 border border-slate-600/40 shadow-lg">
                   <div className="w-16 h-16 bg-gradient-to-br from-[#20B2AA] to-[#81D8D0] text-white rounded-2xl flex items-center justify-center text-xl font-bold shadow-lg shadow-[#20B2AA]/30">
                     {currentUser.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    {/* INCREASED MOBILE TEXT SIZES */}
                     <p className="text-lg font-bold text-white truncate drop-shadow-sm">{currentUser.name}</p>
                     <p className="text-base text-white/70 truncate drop-shadow-sm">{currentUser.email}</p>
                   </div>
@@ -325,13 +305,12 @@ const Navbar = () => {
                     <Link
                       key={link.name}
                       to={link.path}
-                      className={`flex items-center space-x-5 px-8 py-5 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105 hover:shadow-lg ${
+                      className={`flex items-center space-x-5 px-8 py-5 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-slate-600/40 hover:scale-105 hover:shadow-lg ${
                         isActive 
                           ? 'bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] text-white shadow-lg shadow-[#20B2AA]/30' 
                           : 'text-white/90 hover:bg-white/20 hover:text-white hover:shadow-white/20'
                       }`}
                     >
-                      {/* INCREASED MOBILE ICONS FROM 5x5 TO 6x6 */}
                       <Icon className="w-6 h-6" />
                       <span>{link.name}</span>
                     </Link>
@@ -341,7 +320,7 @@ const Navbar = () => {
                 {/* Enhanced Logout Button */}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center space-x-5 w-full px-8 py-5 text-base font-bold text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-2xl transition-all duration-300 mt-8 border-t border-white/20 pt-10 backdrop-blur-sm border border-red-500/30 hover:scale-105 hover:shadow-lg hover:shadow-red-500/20"
+                  className="flex items-center space-x-5 w-full px-8 py-5 text-base font-bold text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-2xl transition-all duration-300 mt-8 border-t border-slate-600/30 pt-10 backdrop-blur-sm border border-red-500/30 hover:scale-105 hover:shadow-lg hover:shadow-red-500/20"
                 >
                   <LogOut className="w-6 h-6" />
                   <span>Logout</span>
@@ -357,7 +336,7 @@ const Navbar = () => {
                     <Link
                       key={link.name}
                       to={link.path}
-                      className={`flex items-center space-x-5 px-8 py-5 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-white/20 hover:scale-105 hover:shadow-lg ${
+                      className={`flex items-center space-x-5 px-8 py-5 rounded-2xl text-base font-bold transition-all duration-300 backdrop-blur-sm border border-slate-600/40 hover:scale-105 hover:shadow-lg ${
                         isActive 
                           ? 'bg-gradient-to-r from-[#20B2AA] to-[#81D8D0] text-white shadow-lg shadow-[#20B2AA]/30' 
                           : 'text-white/90 hover:bg-white/20 hover:text-white hover:shadow-white/20'
@@ -372,10 +351,7 @@ const Navbar = () => {
             )}
           </div>
         </div>
-      </nav>
-
-      {/* UPDATED Navbar Spacer - INCREASED FROM 16 TO 24 */}
-      <div className="h-24"></div>
+      </nav>      
     </>
   );
 };
