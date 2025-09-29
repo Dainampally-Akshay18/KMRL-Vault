@@ -25,12 +25,12 @@ const DocumentUpload = () => {
   // API Configuration - consistent with Home.jsx
   const getApiBaseUrl = () => {
     if (typeof process !== 'undefined' && process.env) {
-      return process.env.REACT_APP_API_BASE_URL || 'https://kmrl-vault.onrender.com/api/v1';
+      return process.env.REACT_APP_API_BASE_URL || 'https://kmrl-vault-8aa9.onrender.com/api/v1';
     }
     if (window.REACT_APP_API_BASE_URL) {
       return window.REACT_APP_API_BASE_URL;
     }
-    return 'https://kmrl-vault.onrender.com/api/v1';
+    return 'https://kmrl-vault-8aa9.onrender.com/api/v1';
   };
 
   const API_BASE_URL = getApiBaseUrl();
