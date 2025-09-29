@@ -296,7 +296,7 @@ const Home = () => {
                       KMRL-Vault
                     </span>
                     <span className="block text-xl sm:text-2xl lg:text-3xl font-bold text-white/90 tracking-wide drop-shadow-lg">
-                      Smart Documents. Safer Metro
+                      Smart Documents. Safer Metro.
                     </span>
                   </h1>
 
@@ -464,8 +464,8 @@ const Home = () => {
                 },
                 {
                   icon: '🤝',
-                  title: 'Negotiation Assistant',
-                  description: 'Generate professional email templates and negotiation strategies based on contract analysis results.',
+                  title: 'AI-Powered Chatbot',
+                  description: 'Ask questions and get instant, accurate answers from your uploaded documents.',
                   gradient: 'from-blue-500/20 to-purple-500/20',
                   border: 'border-blue-400/30',
                   shadow: 'shadow-blue-500/20'
